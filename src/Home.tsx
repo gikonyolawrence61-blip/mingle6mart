@@ -1,328 +1,79 @@
-import { useState } from "react";
-
 export type Item = {
-  id?: string;
-  sellerId?: string;
-  title: string;
-  category: string;
-  price: string;
-  location: string;
-  description: string;
-  image?: string;
-};
+          id?: string;
+            sellerId?: string;
+              title: string;
+                category: string;
+                  price: string;
+                    location: string;
+                      description: string;
+                        image?: string;
+                        };
 
-type HomeProps = {
-  items: Item[];
-  onPostItem: () => void;
-  onViewItem: (item: Item) => void;
-  onOpenSellerInbox: () => void;
-};
 
-const categories = [
-  "All Items",
-  "Electronics",
-  "Fashion",
-  "Home & Furniture",
-  "Home Appliances",
-  "Vehicles & Parts",
-  "Agriculture",
-  "Livestock",
-  "Food & Groceries",
-  "Books & Education",
-  "Tools & Equipment",
-  "Property",
-  "Other",
-];
+                    type HomeProps = {
+                              items: Item[];
+                                onPostItem: () => void;
+                                  onViewItem: (item: Item) => void;
+                                    onOpenSellerInbox: () => void;
+                                    };
+                    
 
-export default function Home({
-  items,
-  onPostItem,
-  onViewItem,
-  onOpenSellerInbox,
-}: HomeProps) {
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] =
-    useState("All Items");
+                          export default function Home({
+                            items,
+                              onPostItem,
+                                onViewItem,
+                                onOpenSellerInbox,
+                        }: HomeProps) {
+                                  return (
+                                      <div
+                                         style={{
+                                                    minHeight: "100vh",
+                                                            background: "#f4f7fb",
+                                                                    padding: "20px",
+                                                                          }}
+                                                                              >
+                                                                                    <div
+                                                                                            style={{
+                                                                                                      maxWidth: "900px",
+                                                                                                                margin: "0 auto",
+                                                                                                                        }}
+                                                                                                                              >
+                                                                                                                                      <h1 style={{ color: "#1565c0" }}>MingleMart</h1>
 
-  const filteredItems = items.filter((item) => {
-    const searchText = search.trim().toLowerCase();
+                                                                                                                                              <p>Connect • Buy • Sell • Meet</p>
+                                                                                                                                              <button
+                                                                                                                                                onClick={onOpenSellerInbox}
+                                                                                                                                                  style={{
+                                                                                                                                                      width: "100%",
+                                                                                                                                                          padding: "12px",
+                                                                                                                                                              marginBottom: "15px",
+                                                                                                                                                                  background: "#087f5b",
+                                                                                                                                                                      color: "white",
+                                                                                                                                                                          border: "none",
+                                                                                                                                                                                                                                                                                                        borderRadius: "10px",
+                                                                                                                                                                                  fontSize: "16px",
+                                                                                                                                                                                      fontWeight: "bold",
+                                                                                                                                                                                        }}
+                                                                                                                                                                                        >
+                                                                                                                                                                                          📥 Seller Inbox
+                                                                                                                                                                                          </button>
 
-    const matchesSearch =
-      item.title.toLowerCase().includes(searchText) ||
-      item.category.toLowerCase().includes(searchText) ||
-      item.location.toLowerCase().includes(searchText) ||
-      item.description.toLowerCase().includes(searchText);
-
-    const matchesCategory =
-      selectedCategory === "All Items" ||
-      item.category.trim().toLowerCase() ===
-        selectedCategory.toLowerCase();
-
-    return matchesSearch && matchesCategory;
-  });
-
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#f4f7fb",
-        padding: "20px",
-        boxSizing: "border-box",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-        }}
-      >
-        <h1 style={{ color: "#1565c0" }}>MingleMart</h1>
-
-        <p>Connect • Buy • Sell • Meet</p>
-
-        <button
-          onClick={onOpenSellerInbox}
-          style={{
-            width: "100%",
-            padding: "12px",
-            marginBottom: "15px",
-            background: "#087f5b",
-            color: "white",
-            border: "none",
-            borderRadius: "10px",
-            fontSize: "16px",
-            fontWeight: "bold",
-            cursor: "pointer",
-          }}
-        >
-          📥 Seller Inbox
-        </button>
-
-        <button
-          onClick={onPostItem}
-          style={{
-            width: "100%",
-            padding: "15px",
-            marginBottom: "20px",
-            background: "#1565c0",
-            color: "white",
-            border: "none",
-            borderRadius: "10px",
-            fontSize: "18px",
-            fontWeight: "bold",
-            cursor: "pointer",
-          }}
-        >
-          ➕ Sell an Item
-        </button>
-
-        <h2>Find what you need</h2>
-
-        <input
-          type="text"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="🔍 Search items..."
-          style={{
-            width: "100%",
-            padding: "14px",
-            boxSizing: "border-box",
-            borderRadius: "10px",
-            border: "1px solid #ccc",
-            fontSize: "16px",
-            marginBottom: "15px",
-          }}
-        />
-
-        <label
-          htmlFor="item-category"
-          style={{
-            display: "block",
-            fontWeight: "bold",
-            marginBottom: "8px",
-          }}
-        >
-          🗂️ Browse by category
-        </label>
-
-        <select
-          id="item-category"
-          value={selectedCategory}
-          onChange={(event) =>
-            setSelectedCategory(event.target.value)
-          }
-          style={{
-            width: "100%",
-            padding: "14px",
-            marginBottom: "20px",
-            borderRadius: "10px",
-            border: "1px solid #ccc",
-            background: "white",
-            fontSize: "16px",
-          }}
-        >
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-
-        <h2>
-          {selectedCategory === "All Items"
-            ? "Items near you"
-            : selectedCategory}
-        </h2>
-
-        <p>
-          {filteredItems.length}{" "}
-          {filteredItems.length === 1 ? "item" : "items"} found
-        </p>
-
-        {filteredItems.length === 0 ? (
-          <div
-            style={{
-              background: "white",
-              padding: "20px",
-              borderRadius: "12px",
-              textAlign: "center",
-            }}
-          >
-            <p>No matching items found.</p>
-            <p>Try another category or search term.</p>
-
-            <button
-              onClick={() => {
-                setSearch("");
-                setSelectedCategory("All Items");
-              }}
-              style={{
-                padding: "10px 16px",
-                background: "#1565c0",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-              }}
-            >
-              Show All Items
-            </button>
-          </div>
-        ) : (
-          filteredItems.map((item, index) => (
-            <div
-              key={item.id || `${item.title}-${index}`}
-              onClick={() => onViewItem(item)}
-              style={{
-                background: "white",
-                padding: "15px",
-                marginTop: "15px",
-                borderRadius: "12px",
-                cursor: "pointer",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-              }}
-            >
-              {item.image && (
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  loading="lazy"
-                  style={{
-                    width: "100%",
-                    maxHeight: "250px",
-                    objectFit: "cover",
-                    borderRadius: "10px",
-                    marginBottom: "10px",
-                  }}
-                />
-              )}
-
-              <h3 style={{ margin: "5px 0" }}>
-                {item.title}
-              </h3>
-
-              <p
-                style={{
-                  color: "#1565c0",
-                  fontSize: "18px",
-                  fontWeight: "bold",
-                }}
-              >
-                KSh {item.price}
-              </p>
-
-              <p>🗂️ {item.category}</p>
-
-              <p>📍 {item.location}</p>
-
-              <p>{item.description}</p>
-
-              <button
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onViewItem(item);
-                }}
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  background: "#1565c0",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  fontSize: "16px",
-                  cursor: "pointer",
-                }}
-              >
-                View Item
-              </button>
-            </div>
-          ))
-        )}
-
-        <footer
-          style={{
-            marginTop: "35px",
-            padding: "24px 15px",
-            background: "#10243a",
-            color: "white",
-            textAlign: "center",
-            borderRadius: "12px",
-          }}
-        >
-          <h3 style={{ margin: "0 0 10px" }}>
-            MingleMart
-          </h3>
-
-          <p style={{ color: "#a7e8cb" }}>
-            Connect • Buy • Sell • Meet
-          </p>
-
-          <p style={{ lineHeight: 1.8 }}>
-            Created with ❤️ by{" "}
-            <strong>Lawrence Gikonyo</strong>
-            <br />
-            <strong>Founder &amp; Developer</strong>
-          </p>
-
-          <p
-            style={{
-              fontSize: "12px",
-              color: "#cbd5e1",
-              marginBottom: 0,
-            }}
-          >
-            © 2026 MingleMart. All rights reserved.
-          </p>
-        </footer>
-      </div>
-    </div>
-  );
-}                                                                                                                                           border: "none",
-                                                                                                                                                                                                                                                                                                                                                                        borderRadius: "10px",
-                                                                                                                                                                                                                                                                                                                                                                                    fontSize: "16px",
-                                                                                                                                                                                                                                                                                                                                                                                                fontWeight: "bold",
-                                                                                                                                                                                                                                                                                                                                                                                                            cursor: "pointer",
-                                                                                                                                                                                                                                                                                                                                                                                                                      }}
+                                                                                                                                                      <button
+                                                                                                                                                                onClick={onPostItem}
+                                                                                                                                                                          style={{
+                                                                                                                                                                                      width: "100%",
+                                                                                                                                                                                                  padding: "15px",
+                                                                                                                                                                                                              marginBottom: "20px",
+                                                                                                                                                                                                                          background: "#1565c0",
+                                                                                                                                                                                                                                      color: "white",
+                                                                                                                                                                                                                                                  border: "none",
+                                                                                                                                                                                                                                                              borderRadius: "10px",
+                                                                                                                                                                                                                                                                          fontSize: "18px",
+                                                                                                                                                                                                                                                                                      fontWeight: "bold",
+                                                                                                                                                                                                                                                                                                }}
+                                                                                                                                                                                                                                                                                                        >
+                                                                                                                                                                                                                                                                                                                  ➕ Sell an Item
+                                                                                                                             
                                                                                                                                                                                                                                                                                                                                                                                                                               >
                                                                                                                                                                                                                                                                                                                                                                                                                                         📥 Seller Inbox
                                                                                                                                                                                                                                                                                                                                                                                                                                                 </button>
@@ -451,10 +202,16 @@ export default function Home({
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       }}
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   >
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                {item.image && (
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               textAlign: "center",  
+                                                                                                                                                                                                                                                                                                                                              borderRadius: "12px",  
+                                                                                                                                                                                                                                                                                                                                                  }}  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             {item.image && (
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 <img
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   src={item.image}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    alt={item.title}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     padding: "24px 15px",  
+                                                                                                                                                                                                                                                                                                                            background: "#10243a",  
+                                                                                                                                                                                                                                                                                                                                  color: "white",  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              alt={item.title}
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       loading="lazy"
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         style={{
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             width: "100%",
@@ -509,24 +266,8 @@ export default function Home({
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               )}
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     </div>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             <footer
-        style={{
-          marginTop: "30px",
-          padding: "24px 15px",
-          background: "#10243a",
-          color: "white",
-          textAlign: "center",
-          borderRadius: "12px",
-        }}
-      >
-        <p>
-          Created with ❤️ by <strong>Lawrence Gikonyo</strong>
-        </p>
-        <p>
-          <strong>Founder &amp; Developer</strong>
-        </p>
-        <p style={{ fontSize: "12px", color: "#cbd5e1" }}>
-          © 2026 MingleMart. All rights reserved.
-        </p>
-      </footer>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          }
+   
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+                                                                                                                                                                                                                                                                                                                marginTop: "30px",  
+                                                 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
