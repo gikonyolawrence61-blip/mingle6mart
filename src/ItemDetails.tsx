@@ -1,4 +1,4 @@
- import type { Item } from "./Home";
+ import type { Item } from "../Home";
               type ItemDetailsProps = {
                 item: Item;
                   onBack: () => void;
