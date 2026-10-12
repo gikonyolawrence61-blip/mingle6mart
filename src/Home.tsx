@@ -152,7 +152,9 @@ export default function Home({
             borderRadius: "10px",
             border: "1px solid #ccc",
             fontSize: "16px",
-            background: "white",
+            background: "#ffffff",
+color: "#111827",
+colorScheme: "light",
             marginBottom: "15px",
           }}
         />
@@ -182,8 +184,11 @@ export default function Home({
             borderRadius: "10px",
             border: "1px solid #ccc",
             fontSize: "16px",
-            background: "white",
+                        background: "#ffffff",
+            color: "#111827",
+            colorScheme: "light",
             marginBottom: "18px",
+          
           }}
         >
           {categories.map((category) => (
