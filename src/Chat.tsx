@@ -11,7 +11,7 @@ import {
                 } from "firebase/firestore";
 
                 import { auth, db } from "./firebase";
-                import type { Item } from "./Home";
+                import type { Item } from "../Home";
                 import type { Conversation } from "./SellerInbox";
 
                 type ChatMessage = {
