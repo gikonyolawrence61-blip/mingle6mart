@@ -158,46 +158,47 @@ export default function App() {
   };
 
   // DELETE A LISTING OWNED BY THE CURRENT USER
-  const handleDeleteItem = async (item: Item) => {
-    const currentUser = auth.currentUser;
+   const handleDeleteItem = async (item: Item) => {
+  if (!currentUser) {
+    alert("Please log in before deleting a listing.");
+    return;
+  }
 
-    if (!currentUser) {
-      alert("Please log in before deleting a listing.");
-      return;
-    }
+  if (!item.id) {
+    alert("Cannot delete this listing because its ID is missing.");
+    return;
+  }
 
-    if (!item.id) {
-      alert("Cannot delete this listing because its ID is missing.");
-      return;
-    }
+  const ADMIN_UID = "cxdj2L9iUSPw4Z6EPrarWGdYp5r2";
+  const isAdmin = currentUser.uid === ADMIN_UID;
 
-    if (!item.sellerId || item.sellerId !== currentUser.uid) {
-      alert("You can only delete listings you posted.");
-      return;
-    }
+  if (!isAdmin && (!item.sellerId || item.sellerId !== currentUser.uid)) {
+    alert("You can only delete listings you posted.");
+    return;
+  }
 
-    const confirmed = window.confirm(
-      `Delete "${item.title}"? This cannot be undone.`
+  const confirmed = window.confirm(
+    `Delete "${item.title}"? This cannot be undone.`
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    setItemsError("");
+
+    await deleteDoc(doc(db, "items", item.id));
+
+    // Firestore's live listener removes the deleted listing.
+  } catch (error) {
+    console.error("Delete failed:", error);
+
+    setItemsError(
+      "Could not delete the listing. Check your Firestore security rules."
     );
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      setItemsError("");
-
-      await deleteDoc(doc(db, "items", item.id));
-
-      // Firestore's live listener removes the deleted listing.
-    } catch (error) {
-      console.error("Delete failed:", error);
-
-      setItemsError(
-        "Could not delete the listing. Check your Firestore security rules."
-      );
-    }
-  };
+  }
+};
 
   // OPEN PRODUCT DETAILS
   const handleViewItem = (item: Item) => {
