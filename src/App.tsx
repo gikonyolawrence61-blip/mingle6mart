@@ -18,8 +18,9 @@ import Registration from "./Registration";
 import Verification from "./Verification";
 import Confirmation from "./Confirmation";
 
-import Home from "./Home";
-import type { Item } from "./Home";
+// FIXED: Home.tsx is in the repository root.
+import Home from "../Home";
+import type { Item } from "../Home";
 
 import PostItem from "./PostItem";
 import ItemDetails from "./ItemDetails";
@@ -40,24 +41,19 @@ type Step =
 export default function App() {
   const [step, setStep] = useState<Step>("login");
 
-  const [registeredEmail, setRegisteredEmail] =
-    useState("");
+  const [registeredEmail, setRegisteredEmail] = useState("");
 
   const [items, setItems] = useState<Item[]>([]);
 
-  const [itemsLoading, setItemsLoading] =
-    useState(true);
+  const [itemsLoading, setItemsLoading] = useState(true);
 
-  const [itemsError, setItemsError] =
-    useState("");
+  const [itemsError, setItemsError] = useState("");
 
-  const [selectedItem, setSelectedItem] =
-    useState<Item | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
-  const [chatItem, setChatItem] =
-    useState<Item | null>(null);
+  const [chatItem, setChatItem] = useState<Item | null>(null);
 
-  // LOAD SAVED LISTINGS
+  // LOAD SAVED LISTINGS FROM FIRESTORE
   useEffect(() => {
     const itemsQuery = query(
       collection(db, "items"),
@@ -67,33 +63,27 @@ export default function App() {
     const unsubscribe = onSnapshot(
       itemsQuery,
       (snapshot) => {
-        const savedItems: Item[] =
-          snapshot.docs.map((document) => {
-            const data = document.data();
+        const savedItems: Item[] = snapshot.docs.map((document) => {
+          const data = document.data();
 
-            return {
-              id: document.id,
-              sellerId: String(data.sellerId ?? ""),
-              title: String(data.title ?? ""),
-              category: String(data.category ?? ""),
-              price: String(data.price ?? ""),
-              location: String(data.location ?? ""),
-              description: String(
-                data.description ?? ""
-              ),
-              image: String(data.image ?? ""),
-            };
-          });
+          return {
+            id: document.id,
+            sellerId: String(data.sellerId ?? ""),
+            title: String(data.title ?? ""),
+            category: String(data.category ?? ""),
+            price: String(data.price ?? ""),
+            location: String(data.location ?? ""),
+            description: String(data.description ?? ""),
+            image: String(data.image ?? ""),
+          };
+        });
 
         setItems(savedItems);
         setItemsError("");
         setItemsLoading(false);
       },
       (error) => {
-        console.error(
-          "Error loading listings:",
-          error
-        );
+        console.error("Error loading listings:", error);
 
         setItemsError(
           "Could not load listings. Check your Firestore database and security rules."
@@ -134,18 +124,14 @@ export default function App() {
   };
 
   // SAVE A NEW LISTING
-  const handleItemPosted = async (
-    newItem: Item
-  ) => {
+  const handleItemPosted = async (newItem: Item) => {
     try {
       setItemsError("");
 
       const currentUser = auth.currentUser;
 
       if (!currentUser) {
-        setItemsError(
-          "Please log in before posting an item."
-        );
+        setItemsError("Please log in before posting an item.");
         return;
       }
 
@@ -160,13 +146,10 @@ export default function App() {
         createdAt: serverTimestamp(),
       });
 
-      // The Firestore listener updates the listings.
+      // Firestore's live listener refreshes the listings.
       setStep("home");
     } catch (error) {
-      console.error(
-        "Error saving item:",
-        error
-      );
+      console.error("Error saving item:", error);
 
       setItemsError(
         "Your item could not be saved. Check your internet connection and Firestore security rules."
@@ -175,32 +158,21 @@ export default function App() {
   };
 
   // DELETE A LISTING OWNED BY THE CURRENT USER
-  const handleDeleteItem = async (
-    item: Item
-  ) => {
+  const handleDeleteItem = async (item: Item) => {
     const currentUser = auth.currentUser;
 
     if (!currentUser) {
-      alert(
-        "Please log in before deleting a listing."
-      );
+      alert("Please log in before deleting a listing.");
       return;
     }
 
     if (!item.id) {
-      alert(
-        "Cannot delete this listing because its ID is missing."
-      );
+      alert("Cannot delete this listing because its ID is missing.");
       return;
     }
 
-    if (
-      !item.sellerId ||
-      item.sellerId !== currentUser.uid
-    ) {
-      alert(
-        "You can only delete listings you posted."
-      );
+    if (!item.sellerId || item.sellerId !== currentUser.uid) {
+      alert("You can only delete listings you posted.");
       return;
     }
 
@@ -215,17 +187,11 @@ export default function App() {
     try {
       setItemsError("");
 
-      await deleteDoc(
-        doc(db, "items", item.id)
-      );
+      await deleteDoc(doc(db, "items", item.id));
 
-      // Firestore's live listener removes the
-      // deleted listing from the screen.
+      // Firestore's live listener removes the deleted listing.
     } catch (error) {
-      console.error(
-        "Delete failed:",
-        error
-      );
+      console.error("Delete failed:", error);
 
       setItemsError(
         "Could not delete the listing. Check your Firestore security rules."
@@ -259,9 +225,7 @@ export default function App() {
       {step === "login" && (
         <Login
           onLoggedIn={handleLogin}
-          onCreateAccount={() =>
-            setStep("registration")
-          }
+          onCreateAccount={() => setStep("registration")}
         />
       )}
 
@@ -269,9 +233,7 @@ export default function App() {
       {step === "registration" && (
         <Registration
           onRegistered={handleRegistered}
-          onLogin={() =>
-            setStep("login")
-          }
+          onLogin={() => setStep("login")}
         />
       )}
 
@@ -285,9 +247,7 @@ export default function App() {
 
       {/* CONFIRMATION */}
       {step === "confirmation" && (
-        <Confirmation
-          onContinue={handleConfirmed}
-        />
+        <Confirmation onContinue={handleConfirmed} />
       )}
 
       {/* HOME */}
@@ -321,14 +281,10 @@ export default function App() {
 
           <Home
             items={items}
-            currentUserId={
-              auth.currentUser?.uid ?? ""
-            }
+            currentUserId={auth.currentUser?.uid ?? ""}
             onPostItem={handlePostItem}
             onViewItem={handleViewItem}
-            onOpenSellerInbox={() =>
-              setStep("sellerInbox")
-            }
+            onOpenSellerInbox={() => setStep("sellerInbox")}
             onDeleteItem={handleDeleteItem}
           />
         </div>
@@ -343,37 +299,29 @@ export default function App() {
       )}
 
       {/* ITEM DETAILS */}
-      {step === "itemDetails" &&
-        selectedItem && (
-          <ItemDetails
-            item={selectedItem}
-            onBack={handleBack}
-            onContactSeller={handleChat}
-          />
-        )}
+      {step === "itemDetails" && selectedItem && (
+        <ItemDetails
+          item={selectedItem}
+          onBack={handleBack}
+          onContactSeller={handleChat}
+        />
+      )}
 
       {/* CHAT */}
       {step === "chat" && chatItem && (
         <Chat
           item={chatItem}
-          onBack={() =>
-            setStep("itemDetails")
-          }
+          onBack={() => setStep("itemDetails")}
         />
       )}
 
       {/* SELLER INBOX */}
       {step === "sellerInbox" && (
         <SellerInbox
-          onBack={() =>
-            setStep("home")
-          }
-          onOpenConversation={(
-            conversation
-          ) => {
+          onBack={() => setStep("home")}
+          onOpenConversation={(conversation) => {
             const relatedItem = items.find(
-              (item) =>
-                item.id === conversation.itemId
+              (item) => item.id === conversation.itemId
             );
 
             if (!relatedItem) {
@@ -390,4 +338,4 @@ export default function App() {
       )}
     </div>
   );
-}
+                                 }
