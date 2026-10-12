@@ -1,275 +1,393 @@
-import { useEffect, useState } from "react";
+ import { useEffect, useState } from "react";
+
 import {
-    addDoc,
-      collection,
-        onSnapshot,
-          orderBy,
-            query,
-              serverTimestamp,
-                
-                  
-                    
-                    } from "firebase/firestore";
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
+} from "firebase/firestore";
 
+import { auth, db } from "./firebase";
 
-            import { auth, db } from "./firebase";
+import Login from "./Login";
+import Registration from "./Registration";
+import Verification from "./Verification";
+import Confirmation from "./Confirmation";
 
-            import Login from "./Login";
-            import Registration from "./Registration";
-            import Verification from "./Verification";
-            import Confirmation from "./Confirmation";
-            import Home from "./Home";
-            import type { Item } from "./Home";
-            import PostItem from "./PostItem";
-            import ItemDetails from "./ItemDetails";
-            import Chat from "./Chat";
-             import SellerInbox from "./SellerInbox";
-             
+import Home from "./Home";
+import type { Item } from "./Home";
 
-          type Step =
-            | "login"
-              | "registration"
-                | "verification"
-                  | "confirmation"
-                    | "home"
-                      | "postItem"
-                        | "itemDetails"
-                          | "chat"
-                            | "sellerInbox";
+import PostItem from "./PostItem";
+import ItemDetails from "./ItemDetails";
+import Chat from "./Chat";
+import SellerInbox from "./SellerInbox";
 
-                            export default function App() {
-                              const [step, setStep] = useState<Step>("login");
+type Step =
+  | "login"
+  | "registration"
+  | "verification"
+  | "confirmation"
+  | "home"
+  | "postItem"
+  | "itemDetails"
+  | "chat"
+  | "sellerInbox";
 
-                                const [registeredEmail, setRegisteredEmail] = useState("");
+export default function App() {
+  const [step, setStep] = useState<Step>("login");
 
-                                  const [items, setItems] = useState<Item[]>([]);
-                                    const [itemsLoading, setItemsLoading] = useState(true);
-                                      const [itemsError, setItemsError] = useState("");
+  const [registeredEmail, setRegisteredEmail] =
+    useState("");
 
-                                        const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-                                          const [chatItem, setChatItem] = useState<Item | null>(null);
+  const [items, setItems] = useState<Item[]>([]);
 
-                                            // Load saved listings from Firestore.
-                                              useEffect(() => {
-                                                  const itemsQuery = query(
-                                                        collection(db, "items"),
-                                                              orderBy("createdAt", "desc")
-                                                                  );
+  const [itemsLoading, setItemsLoading] =
+    useState(true);
 
-                                                                      const unsubscribe = onSnapshot(
-                                                                            itemsQuery,
-                                                                                  (snapshot) => {
-                                                                                          const savedItems: Item[] = snapshot.docs.map((document) => {
-                                                                                                    const data = document.data();
+  const [itemsError, setItemsError] =
+    useState("");
 
-                                                                                                              return {
-                                                                                                                  id: document.id,
-                                                                                                                    sellerId: String(data.sellerId ?? ""),
-                                                                                                                      title: String(data.title ?? ""),
-                                                                                                                        category: String(data.category ?? ""),
-                                                                                                                          price: String(data.price ?? ""),
-                                                                                                                            location: String(data.location ?? ""),
-                                                                                                                              description: String(data.description ?? ""),
-                                                                                                                                image: String(data.image ?? ""),
-                                                                                                                                };
-                                                                                                                                                                                                                                          });
+  const [selectedItem, setSelectedItem] =
+    useState<Item | null>(null);
 
-                                                                                                                                                                                                                setItems(savedItems);
-                                                                                                                                                                                                                        setItemsError("");
-                                                                                                                                                                                                                                setItemsLoading(false);
-                                                                                                                                                                                                                                      },
-                                                                                                                                                                                                                                            (error) => {
-                                                                                                                                                                                                                                                    console.error("Error loading listings:", error);
-                                                                                                                                                                                                                                                            setItemsError(
-                                                                                                                                                                                                                                                                      "Could not load listings. Check your Firestore database and security rules."
-                                                                                                                                                                                                                                                                              );
-                                                                                                                                                                                                                                                                                      setItemsLoading(false);
-                                                                                                                                                                                                                                                                                            }
-                                                                                                                                                                                                                                                                                                );
+  const [chatItem, setChatItem] =
+    useState<Item | null>(null);
 
-                                                                                                                                                                                                                                                                                                    return unsubscribe;
-                                                                                                                                                                                                                                                                                                      }, []);
+  // LOAD SAVED LISTINGS
+  useEffect(() => {
+    const itemsQuery = query(
+      collection(db, "items"),
+      orderBy("createdAt", "desc")
+    );
 
-                                                                                                                                                                                                                                                                                                        // Login successfully.
-                                                                                                                                                                                                                                                                                                          const handleLogin = () => {
-                                                                                                                                                                                                                                                                                                              setStep("home");
-                                                                                                                                                                                                                                                                                                                };
+    const unsubscribe = onSnapshot(
+      itemsQuery,
+      (snapshot) => {
+        const savedItems: Item[] =
+          snapshot.docs.map((document) => {
+            const data = document.data();
 
-                                                                                                                                                                                                                                                                                                                  // Registration successfully submitted.
-                                                                                                                                                                                                                                                                                                                    const handleRegistered = (email: string) => {
-                                                                                                                                                                                                                                                                                                                        setRegisteredEmail(email);
-                                                                                                                                                                                                                                                                                                                            setStep("verification");
-                                                                                                                                                                                                                                                                                                                              };
+            return {
+              id: document.id,
+              sellerId: String(data.sellerId ?? ""),
+              title: String(data.title ?? ""),
+              category: String(data.category ?? ""),
+              price: String(data.price ?? ""),
+              location: String(data.location ?? ""),
+              description: String(
+                data.description ?? ""
+              ),
+              image: String(data.image ?? ""),
+            };
+          });
 
-                                                                                                                                                                                                                                                                                                                                // Email verification completed.
-                                                                                                                                                                                                                                                                                                                                  const handleVerified = () => {
-                                                                                                                                                                                                                                                                                                                                      setStep("confirmation");
-                                                                                                                                                                                                                                                                                                                                        };
+        setItems(savedItems);
+        setItemsError("");
+        setItemsLoading(false);
+      },
+      (error) => {
+        console.error(
+          "Error loading listings:",
+          error
+        );
 
-                                                                                                                                                                                                                                                                                                                                          // Confirmation completed.
-                                                                                                                                                                                                                                                                                                                                            const handleConfirmed = () => {
-                                                                                                                                                                                                                                                                                                                                                setStep("home");
-                                                                                                                                                                                                                                                                                                                                                  };
+        setItemsError(
+          "Could not load listings. Check your Firestore database and security rules."
+        );
 
-                                                                                                                                                                                                                                                                                                                                                    // Open the item posting form.
-                                                                                                                                                                                                                                                                                                                                                      const handlePostItem = () => {
-                                                                                                                                                                                                                                                                                                                                                          setStep("postItem");
-                                                                                                                                                                                                                                                                                                                                                            };
+        setItemsLoading(false);
+      }
+    );
 
-                                                                                                                                                                                                                                                                                                                                                              // Save a new item to Firestore.
-                                                                                                                                                                                                                                                                                                                                                                const handleItemPosted = async (newItem: Item) => {
-                                                                                                                                                                                                                                                                                                                                                                    try {
-                                                                                                                                                                                                                                                                                                                                                                          setItemsError("");
+    return unsubscribe;
+  }, []);
 
-                                                                                                                       const currentUser = auth.currentUser;
-                                                                                                                       
-                                                                                                                       if (!currentUser) {
-                                                                                                                         setItemsError("Please log in before posting an item.");
-                                                                                                                           return;
-                                                                                                                           }                                                                                                                                                                                                                                                         await addDoc(collection(db, "items"), {
-                                                                                                                                                                                                                                                                                                                                                                                        title: newItem.title,
-                                                                                                                                                                                                                                                                                                                                                                                                category: newItem.category,
-                                                                                                                                                                                                                                                                                                                                                                                                        price: newItem.price,
-                                                                                                                                                                                                                                                                                                                                                                                                                location: newItem.location,
-                                                                                                                                                                                                                                                                                                                                                                                                                        description: newItem.description,
-                                                                                                                                                                                                                                                                                                                                                                                                                                image: newItem.image,
-                                                                                                                                                                               sellerId: currentUser.uid,                                                                                                                                                                                                                                                         createdAt: serverTimestamp(),
-                                                                                                                                                                                                                                                                                                                                                                                                                                              });
+  // LOGIN
+  const handleLogin = () => {
+    setStep("home");
+  };
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    setStep("home");
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        } catch (error) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                              console.error("Error saving item:", error);
+  // REGISTRATION
+  const handleRegistered = (email: string) => {
+    setRegisteredEmail(email);
+    setStep("verification");
+  };
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                    setItemsError(
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            "Your item could not be saved. Check your internet connection and Firestore security rules."
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        };
+  // EMAIL VERIFIED
+  const handleVerified = () => {
+    setStep("confirmation");
+  };
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          // Open item details.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            const handleViewItem = (item: Item) => {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                setSelectedItem(item);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    setStep("itemDetails");
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      };
+  // CONFIRMATION
+  const handleConfirmed = () => {
+    setStep("home");
+  };
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        // Return to Home.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          const handleBack = () => {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              setStep("home");
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                };
+  // OPEN POSTING FORM
+  const handlePostItem = () => {
+    setItemsError("");
+    setStep("postItem");
+  };
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  // Open chat with the seller.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    const handleChat = () => {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        if (selectedItem) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              setChatItem(selectedItem);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    setStep("chat");
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          };
+  // SAVE A NEW LISTING
+  const handleItemPosted = async (
+    newItem: Item
+  ) => {
+    try {
+      setItemsError("");
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            return (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      {/* LOGIN */}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {step === "login" && (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <Login
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      onLoggedIn={handleLogin}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        onCreateAccount={() => setStep("registration")}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          )}
+      const currentUser = auth.currentUser;
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                {/* REGISTRATION */}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      {step === "registration" && (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <Registration
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        onRegistered={handleRegistered}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  onLogin={() => setStep("login")}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                )}
+      if (!currentUser) {
+        setItemsError(
+          "Please log in before posting an item."
+        );
+        return;
+      }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      {/* EMAIL VERIFICATION */}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {step === "verification" && (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <Verification
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              email={registeredEmail}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        onVerified={handleVerified}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      )}
+      await addDoc(collection(db, "items"), {
+        title: newItem.title,
+        category: newItem.category,
+        price: newItem.price,
+        location: newItem.location,
+        description: newItem.description,
+        image: newItem.image ?? "",
+        sellerId: currentUser.uid,
+        createdAt: serverTimestamp(),
+      });
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {/* CONFIRMATION */}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  {step === "confirmation" && (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <Confirmation onContinue={handleConfirmed} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                )}
+      // The Firestore listener updates the listings.
+      setStep("home");
+    } catch (error) {
+      console.error(
+        "Error saving item:",
+        error
+      );
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      {/* HOME */}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {step === "home" && (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              {itemsLoading && (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <p style={{ textAlign: "center", padding: "15px" }}>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Loading listings...
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              )}
+      setItemsError(
+        "Your item could not be saved. Check your internet connection and Firestore security rules."
+      );
+    }
+  };
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        {itemsError && (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <p
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  style={{
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  color: "red",
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  background: "#ffebee",
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  padding: "12px",
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  margin: "10px",
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  borderRadius: "8px",
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            >
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          {itemsError}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                )}
+  // DELETE A LISTING OWNED BY THE CURRENT USER
+  const handleDeleteItem = async (
+    item: Item
+  ) => {
+    const currentUser = auth.currentUser;
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <Home
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    items={items}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      onPostItem={handlePostItem}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        onViewItem={handleViewItem}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          onOpenSellerInbox={() => setStep("sellerInbox")}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          />                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      )}
+    if (!currentUser) {
+      alert(
+        "Please log in before deleting a listing."
+      );
+      return;
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {/* POST AN ITEM */}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  {step === "postItem" && (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <PostItem
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    onBack={handleBack}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              onItemPosted={handleItemPosted}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            )}
+    if (!item.id) {
+      alert(
+        "Cannot delete this listing because its ID is missing."
+      );
+      return;
+    }
 
-                                                            {/* ITEM DETAILS */}
-                                                            {step === "itemDetails" && selectedItem && (
-                                                              <ItemDetails
-                                                                  item={selectedItem}
-                                                                      onBack={handleBack}
-                                                                          onContactSeller={handleChat}
-                                                                            />
-                                                                            )}
-                                                                            
-                                                                            {/* CHAT */}
-                                                                            {step === "chat" && chatItem !== null && (
-                                                                              <Chat
-                                                                                  item={chatItem}
-                                                                                      onBack={() => setStep("itemDetails")}
-                                                                                        />
-                                                                                        )}
-                                                                                        
-                                                         {/* SELLER INBOX */}
-                                                         {step === "sellerInbox" && (
-                                                           <SellerInbox
-                                                               onBack={() => setStep("home")}
-                                                                   onOpenConversation={(conversation) => {
-                                                                         const relatedItem = items.find(
-                                                                                 (item) => item.id === conversation.itemId
-                                                                                       );
-                                                                                       
-                                                                                             if (!relatedItem) {
-                                                                                                     alert("The item for this conversation could not be found.");
-                                                                                                             return;
-                                                                                                                   }
-                                                                                                                   
-                                                                                                                         setChatItem(relatedItem);
-                                                                                                                               setStep("chat");
-                                                                                                                                   }}
-                                                                                                                                     />
-                                                                                                                                     )}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           </div>
-                                                                                                                                    );
-                                                                                                                                    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+    if (
+      !item.sellerId ||
+      item.sellerId !== currentUser.uid
+    ) {
+      alert(
+        "You can only delete listings you posted."
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete "${item.title}"? This cannot be undone.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setItemsError("");
+
+      await deleteDoc(
+        doc(db, "items", item.id)
+      );
+
+      // Firestore's live listener removes the
+      // deleted listing from the screen.
+    } catch (error) {
+      console.error(
+        "Delete failed:",
+        error
+      );
+
+      setItemsError(
+        "Could not delete the listing. Check your Firestore security rules."
+      );
+    }
+  };
+
+  // OPEN PRODUCT DETAILS
+  const handleViewItem = (item: Item) => {
+    setSelectedItem(item);
+    setStep("itemDetails");
+  };
+
+  // RETURN HOME
+  const handleBack = () => {
+    setItemsError("");
+    setStep("home");
+  };
+
+  // OPEN CHAT WITH SELLER
+  const handleChat = () => {
+    if (selectedItem) {
+      setChatItem(selectedItem);
+      setStep("chat");
+    }
+  };
+
+  return (
+    <div>
+      {/* LOGIN */}
+      {step === "login" && (
+        <Login
+          onLoggedIn={handleLogin}
+          onCreateAccount={() =>
+            setStep("registration")
+          }
+        />
+      )}
+
+      {/* REGISTRATION */}
+      {step === "registration" && (
+        <Registration
+          onRegistered={handleRegistered}
+          onLogin={() =>
+            setStep("login")
+          }
+        />
+      )}
+
+      {/* EMAIL VERIFICATION */}
+      {step === "verification" && (
+        <Verification
+          email={registeredEmail}
+          onVerified={handleVerified}
+        />
+      )}
+
+      {/* CONFIRMATION */}
+      {step === "confirmation" && (
+        <Confirmation
+          onContinue={handleConfirmed}
+        />
+      )}
+
+      {/* HOME */}
+      {step === "home" && (
+        <div>
+          {itemsLoading && (
+            <p
+              style={{
+                textAlign: "center",
+                padding: "15px",
+              }}
+            >
+              Loading listings...
+            </p>
+          )}
+
+          {itemsError && (
+            <p
+              role="alert"
+              style={{
+                color: "#b91c1c",
+                background: "#ffebee",
+                padding: "12px",
+                margin: "10px",
+                borderRadius: "8px",
+              }}
+            >
+              {itemsError}
+            </p>
+          )}
+
+          <Home
+            items={items}
+            currentUserId={
+              auth.currentUser?.uid ?? ""
+            }
+            onPostItem={handlePostItem}
+            onViewItem={handleViewItem}
+            onOpenSellerInbox={() =>
+              setStep("sellerInbox")
+            }
+            onDeleteItem={handleDeleteItem}
+          />
+        </div>
+      )}
+
+      {/* POST AN ITEM */}
+      {step === "postItem" && (
+        <PostItem
+          onBack={handleBack}
+          onItemPosted={handleItemPosted}
+        />
+      )}
+
+      {/* ITEM DETAILS */}
+      {step === "itemDetails" &&
+        selectedItem && (
+          <ItemDetails
+            item={selectedItem}
+            onBack={handleBack}
+            onContactSeller={handleChat}
+          />
+        )}
+
+      {/* CHAT */}
+      {step === "chat" && chatItem && (
+        <Chat
+          item={chatItem}
+          onBack={() =>
+            setStep("itemDetails")
+          }
+        />
+      )}
+
+      {/* SELLER INBOX */}
+      {step === "sellerInbox" && (
+        <SellerInbox
+          onBack={() =>
+            setStep("home")
+          }
+          onOpenConversation={(
+            conversation
+          ) => {
+            const relatedItem = items.find(
+              (item) =>
+                item.id === conversation.itemId
+            );
+
+            if (!relatedItem) {
+              alert(
+                "The item for this conversation could not be found."
+              );
+              return;
+            }
+
+            setChatItem(relatedItem);
+            setStep("chat");
+          }}
+        />
+      )}
+    </div>
+  );
+}
