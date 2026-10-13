@@ -9,6 +9,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  where,
 } from "firebase/firestore";
 
 import { auth, db } from "./firebase";
@@ -48,6 +49,8 @@ export default function App() {
   const [itemsLoading, setItemsLoading] = useState(true);
 
   const [itemsError, setItemsError] = useState("");
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [activeConversation, setActiveConversation] = useState<import("./SellerInbox").Conversation | null>(null);
 
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
@@ -95,6 +98,21 @@ export default function App() {
 
     return unsubscribe;
   }, []);
+
+  // Live unread-message count for the seller inbox bell.
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user || !["home", "sellerInbox", "chat", "itemDetails", "postItem"].includes(step)) {
+      setUnreadMessages(0);
+      return;
+    }
+    const unreadQuery = query(collection(db, "conversations"), where("sellerId", "==", user.uid));
+    return onSnapshot(unreadQuery, (snapshot) => {
+      const total = snapshot.docs.reduce((sum, conversationDoc) =>
+        sum + Math.max(0, Number(conversationDoc.data().sellerUnreadCount ?? 0)), 0);
+      setUnreadMessages(total);
+    }, (error) => console.error("UNREAD MESSAGE COUNT ERROR:", error));
+  }, [step]);
 
   // LOGIN
   const handleLogin = () => {
@@ -216,6 +234,7 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
   const handleChat = () => {
     if (selectedItem) {
       setChatItem(selectedItem);
+      setActiveConversation(null);
       setStep("chat");
     }
   };
@@ -286,6 +305,7 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
             onPostItem={handlePostItem}
             onViewItem={handleViewItem}
             onOpenSellerInbox={() => setStep("sellerInbox")}
+            unreadMessages={unreadMessages}
             onDeleteItem={handleDeleteItem}
           />
         </div>
@@ -312,7 +332,8 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
       {step === "chat" && chatItem && (
         <Chat
           item={chatItem}
-          onBack={() => setStep("itemDetails")}
+          conversation={activeConversation}
+          onBack={() => setStep(activeConversation ? "sellerInbox" : "itemDetails")}
         />
       )}
 
@@ -333,6 +354,7 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
             }
 
             setChatItem(relatedItem);
+            setActiveConversation(conversation);
             setStep("chat");
           }}
         />
