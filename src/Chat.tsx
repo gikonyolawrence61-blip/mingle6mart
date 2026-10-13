@@ -99,14 +99,26 @@ setLoading(false);
 return unsubscribe;
 }, [chatId, currentUser]);
 
-// Mark seller notifications as read when the seller opens this conversation.
+// Mark the current participant's unread messages as read when the chat opens.
 useEffect(() => {
-const user = auth.currentUser;
-if (!conversation || !user || user.uid !== conversation.sellerId) return;
-void updateDoc(doc(db, "conversations", conversation.id), { sellerUnreadCount: 0 }).catch((err) => {
-console.error("MARK MESSAGES READ ERROR:", err);
-});
-}, [conversation?.id, conversation?.sellerId]);
+  const user = auth.currentUser;
+  if (!conversation || !user) return;
+
+  const readField =
+    user.uid === conversation.sellerId
+      ? "sellerUnreadCount"
+      : user.uid === conversation.buyerId
+        ? "buyerUnreadCount"
+        : "";
+
+  if (!readField) return;
+
+  void updateDoc(doc(db, "conversations", conversation.id), {
+    [readField]: 0,
+  }).catch((err) => {
+    console.error("MARK MESSAGES READ ERROR:", err);
+  });
+}, [conversation?.id, conversation?.sellerId, conversation?.buyerId]);
 
 async function deleteMessage(message: ChatMessage) {
   const user = auth.currentUser;
@@ -166,7 +178,9 @@ buyerId,
 sellerId,
 lastSenderId: user.uid,
 updatedAt: serverTimestamp(),
-...(!conversation ? { sellerUnreadCount: increment(1) } : {}),
+...(user.uid === sellerId
+            ? { buyerUnreadCount: increment(1) }
+            : { sellerUnreadCount: increment(1) }),
 },
 { merge: true }
 );
