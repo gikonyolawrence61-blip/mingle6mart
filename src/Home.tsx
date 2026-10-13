@@ -1,4 +1,5 @@
 import PostSocial from "./PostSocial";
+import PromotionRequest from "./PromotionRequest";
 import { useMemo, useState } from "react";
 
 export type Item = {
@@ -317,6 +318,11 @@ colorScheme: "light",
               >
                 View Item
               </button>
+
+              {/* SELLER PROMOTION REQUEST */}
+              {currentUserId !== "" && item.sellerId === currentUserId && (
+                <PromotionRequest itemId={item.id} itemTitle={item.title} />
+              )}
 
               {/* SELLER-OWNED LISTING DELETION */}
               {currentUserId !== "" &&
