@@ -164,7 +164,7 @@ buyerId,
 sellerId,
 lastSenderId: user.uid,
 updatedAt: serverTimestamp(),
-...(user.uid !== sellerId ? { sellerUnreadCount: increment(1) } : {}),
+...(!conversation ? { sellerUnreadCount: increment(1) } : {}),
 },
 { merge: true }
 );
