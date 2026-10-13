@@ -17,6 +17,7 @@ type HomeProps = {
   onPostItem: () => void;
   onViewItem: (item: Item) => void;
   onOpenSellerInbox: () => void;
+  unreadMessages: number;
   onDeleteItem: (item: Item) => void;
 };
 
@@ -26,6 +27,7 @@ export default function Home({
   onPostItem,
   onViewItem,
   onOpenSellerInbox,
+  unreadMessages,
   onDeleteItem,
 }: HomeProps) {
   const [searchText, setSearchText] = useState("");
@@ -106,7 +108,10 @@ export default function Home({
             cursor: "pointer",
           }}
         >
-          📥 Seller Inbox
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+            🔔 Seller Inbox
+            {unreadMessages > 0 && <span aria-label={`${unreadMessages} unread messages`} style={{ background: "#dc2626", color: "white", borderRadius: "999px", minWidth: "24px", padding: "3px 7px", fontSize: "13px", fontWeight: "bold" }}>{unreadMessages > 99 ? "99+" : unreadMessages}</span>}
+          </span>
         </button>
 
         <button
