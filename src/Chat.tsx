@@ -38,6 +38,7 @@ const [messages, setMessages] = useState<ChatMessage[]>([]);
 const [messageText, setMessageText] = useState("");
 const [loading, setLoading] = useState(true);
 const [sending, setSending] = useState(false);
+const [deletingMessageId, setDeletingMessageId] = useState("");
 const [error, setError] = useState("");
 
 const currentUser = auth.currentUser;
@@ -105,6 +106,25 @@ void updateDoc(doc(db, "conversations", conversation.id), { sellerUnreadCount: 0
 console.error("MARK MESSAGES READ ERROR:", err);
 });
 }, [conversation?.id, conversation?.sellerId]);
+
+async function deleteMessage(message: ChatMessage) {
+  const user = auth.currentUser;
+  if (!user || message.senderId !== user.uid || !chatId) return;
+
+  const confirmed = window.confirm("Delete this message? This cannot be undone.");
+  if (!confirmed) return;
+
+  setDeletingMessageId(message.id);
+  setError("");
+  try {
+    await deleteDoc(doc(db, "conversations", chatId, "messages", message.id));
+  } catch (err) {
+    console.error("DELETE MESSAGE ERROR:", err);
+    setError("Message could not be deleted. Check Firestore permissions and try again.");
+  } finally {
+    setDeletingMessageId("");
+  }
+}
 
 async function sendMessage() {
 const user = auth.currentUser;
@@ -238,7 +258,27 @@ fontWeight: 500,                                                                
 }}
 >
 <p style={{ margin: 0 }}>{message.text}</p>
-<small>{isMine ? "You" : "Other participant"}</small>
+<div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px" }}>
+  <small>{isMine ? "You" : "Other participant"}</small>
+  {isMine && (
+    <button
+      type="button"
+      onClick={() => void deleteMessage(message)}
+      disabled={deletingMessageId === message.id}
+      style={{
+        padding: "3px 7px",
+        border: "1px solid #dc2626",
+        borderRadius: "6px",
+        background: "white",
+        color: "#b91c1c",
+        fontSize: "12px",
+        cursor: deletingMessageId === message.id ? "wait" : "pointer",
+      }}
+    >
+      {deletingMessageId === message.id ? "Deleting..." : "🗑 Delete"}
+    </button>
+  )}
+</div>
 </div>
 );
 })}
