@@ -1,3 +1,4 @@
+import PostSocial from "./PostSocial";
 import { useMemo, useState } from "react";
 
 export type Item = {
@@ -292,6 +293,8 @@ colorScheme: "light",
               <p>📍 {item.location}</p>
 
               <p>{item.description}</p>
+
+              <PostSocial itemId={item.id} />
 
               {/* VIEW PRODUCT */}
               <button
