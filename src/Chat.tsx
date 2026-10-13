@@ -121,7 +121,9 @@ async function deleteMessage(message: ChatMessage) {
     await deleteDoc(doc(db, "conversations", chatId, "messages", message.id));
   } catch (err) {
     console.error("DELETE MESSAGE ERROR:", err);
-    setError("Message could not be deleted. Check Firestore permissions and try again.");
+    const firebaseError = err as { code?: string; message?: string };
+    const code = firebaseError.code || "unknown-error";
+    setError(`Delete failed (${code}). The message was not removed from Firestore. Check the published Firestore rules.`);
   } finally {
     setDeletingMessageId("");
   }
