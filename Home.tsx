@@ -109,7 +109,7 @@ export default function Home({
           }}
         >
           <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-            🔔 Seller Inbox
+            💬 Messages
             {unreadMessages > 0 && <span aria-label={`${unreadMessages} unread messages`} style={{ background: "#dc2626", color: "white", borderRadius: "999px", minWidth: "24px", padding: "3px 7px", fontSize: "13px", fontWeight: "bold" }}>{unreadMessages > 99 ? "99+" : unreadMessages}</span>}
           </span>
         </button>
