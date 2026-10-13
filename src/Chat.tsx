@@ -3,6 +3,7 @@ import {
 addDoc,
 collection,
 doc,
+deleteDoc,
 onSnapshot,
 orderBy,
 query,
