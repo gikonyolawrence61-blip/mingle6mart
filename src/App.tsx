@@ -78,6 +78,7 @@ export default function App() {
             location: String(data.location ?? ""),
             description: String(data.description ?? ""),
             image: String(data.image ?? ""),
+            createdAt: data.createdAt ?? null,
           };
         });
 
