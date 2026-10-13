@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import type { FormEvent } from "react";
 import {
   addDoc,
   collection,
@@ -105,7 +106,7 @@ export default function HotNewsTicker() {
     [allStories]
   );
 
-  async function submitNews(event: React.FormEvent<HTMLFormElement>) {
+  async function submitNews(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!auth.currentUser) {
       setNotice("Please log in before submitting news.");
