@@ -87,7 +87,7 @@ createdAt: data.createdAt,
 
 setMessages(loadedMessages);
 setLoading(false);
-setError("");
+// Keep deletion errors visible when the listener receives a new snapshot.
 },
 (err) => {
 console.error("CHAT ERROR:", err);
