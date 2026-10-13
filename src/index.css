@@ -125,21 +125,37 @@ code {
   justify-content: center;
   position: relative;
   gap: 0;
+  margin: 0;
   font-size: clamp(2.25rem, 9vw, 3.5rem);
   line-height: 1.15;
   font-weight: 850;
   letter-spacing: -2px;
-  animation: mingle-brand-arrive 850ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+.mingle-brand__word {
+  display: inline-flex;
+  white-space: pre;
 }
 
 .mingle-brand__word--mingle {
   color: #1565c0;
-  animation: mingle-word-blue 1s ease-out both;
 }
 
 .mingle-brand__word--mart {
   color: #087f5b;
-  animation: mingle-word-green 1s ease-out 180ms both;
+  margin-left: .015em;
+}
+
+.mingle-brand__letter {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: mingle-letter-appear 420ms cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+.mingle-brand__letter--mart {
+  animation-name: mingle-mart-slide;
+  text-shadow: 0 0 0 rgba(8, 127, 91, 0);
 }
 
 .mingle-brand__connections {
@@ -148,6 +164,8 @@ code {
   top: 2px;
   width: 20px;
   height: 20px;
+  opacity: 0;
+  animation: mingle-dots-appear 400ms ease-out 950ms forwards;
 }
 
 .mingle-brand__dot {
@@ -157,27 +175,27 @@ code {
   border-radius: 50%;
   background: #f59e0b;
   box-shadow: 0 0 0 3px rgba(245, 158, 11, .12);
-  animation: mingle-connect 1.8s ease-in-out infinite;
+  animation: mingle-connect 1.8s ease-in-out 1.3s infinite;
 }
 
 .mingle-brand__dot--one {
   left: 1px;
   top: 1px;
-  animation-delay: 0ms;
+  animation-delay: 1.3s;
 }
 
 .mingle-brand__dot--two {
   right: 1px;
   top: 5px;
   background: #1565c0;
-  animation-delay: 250ms;
+  animation-delay: 1.55s;
 }
 
 .mingle-brand__dot--three {
   left: 7px;
   bottom: 0;
   background: #087f5b;
-  animation-delay: 500ms;
+  animation-delay: 1.8s;
 }
 
 .mingle-brand__tagline {
@@ -186,7 +204,8 @@ code {
   font-size: clamp(.7rem, 2.8vw, .9rem);
   font-weight: 750;
   letter-spacing: clamp(1px, .5vw, 2.5px);
-  animation: mingle-tagline-appear 900ms ease-out 350ms both;
+  opacity: 0;
+  animation: mingle-tagline-appear 650ms ease-out 1.15s forwards;
 }
 
 .mingle-brand__tagline span {
@@ -194,19 +213,19 @@ code {
   padding: 0 2px;
 }
 
-@keyframes mingle-brand-arrive {
-  from { opacity: 0; transform: translateY(14px) scale(.96); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes mingle-letter-appear {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes mingle-word-blue {
-  from { opacity: 0; transform: translateX(-12px); }
-  to { opacity: 1; transform: translateX(0); }
+@keyframes mingle-mart-slide {
+  from { opacity: 0; transform: translateX(16px); filter: saturate(.5); }
+  to { opacity: 1; transform: translateX(0); filter: saturate(1); }
 }
 
-@keyframes mingle-word-green {
-  from { opacity: 0; transform: translateX(12px); }
-  to { opacity: 1; transform: translateX(0); }
+@keyframes mingle-dots-appear {
+  from { opacity: 0; transform: scale(.6); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes mingle-connect {
@@ -220,11 +239,13 @@ code {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mingle-brand__wordmark,
-  .mingle-brand__word--mingle,
-  .mingle-brand__word--mart,
+  .mingle-brand__letter,
+  .mingle-brand__connections,
   .mingle-brand__dot,
   .mingle-brand__tagline {
     animation: none !important;
+    opacity: 1;
+    transform: none;
+    filter: none;
   }
 }
