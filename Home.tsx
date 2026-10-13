@@ -89,9 +89,18 @@ export default function Home({
           margin: "0 auto",
         }}
       >
-        <h1 style={{ color: "#1565c0" }}>MingleMart</h1>
-
-        <p>Connect • Buy • Sell • Meet</p>
+        <header className="mingle-brand" aria-label="MingleMart: Connect, Buy, Sell, Meet">
+          <div className="mingle-brand__wordmark">
+            <span className="mingle-brand__word mingle-brand__word--mingle">Mingle</span>
+            <span className="mingle-brand__word mingle-brand__word--mart">Mart</span>
+            <span className="mingle-brand__connections" aria-hidden="true">
+              <span className="mingle-brand__dot mingle-brand__dot--one" />
+              <span className="mingle-brand__dot mingle-brand__dot--two" />
+              <span className="mingle-brand__dot mingle-brand__dot--three" />
+            </span>
+          </div>
+          <p className="mingle-brand__tagline">CONNECT <span>•</span> BUY <span>•</span> SELL <span>•</span> MEET</p>
+        </header>
 
         <button
           onClick={onOpenSellerInbox}
