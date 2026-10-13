@@ -139,8 +139,11 @@ export default function PostSocial({ itemId }: PostSocialProps) {
   const formatCommentTime = (value: Comment["createdAt"]) => {
     if (!value) return "Just now";
     let date: Date | null = value instanceof Date ? value : null;
-    if (!date && value && typeof value === "object" && typeof value.toDate === "function") {
-      try { date = value.toDate(); } catch { date = null; }
+    if (!date && value && typeof value === "object") {
+      const timestamp = value as { toDate?: () => Date };
+      if (typeof timestamp.toDate === "function") {
+        try { date = timestamp.toDate(); } catch { date = null; }
+      }
     }
     if (!date || Number.isNaN(date.getTime())) return "";
     const minutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60000));
