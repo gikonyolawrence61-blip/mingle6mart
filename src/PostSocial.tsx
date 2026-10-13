@@ -182,7 +182,7 @@ export default function PostSocial({ itemId }: PostSocialProps) {
           onClick={(event) => { event.stopPropagation(); setExpanded((value) => !value); }}
           style={{ border: "1px solid #cbd5e1", borderRadius: "999px", padding: "8px 13px", background: "white", color: "#334155", cursor: "pointer" }}
         >
-          💬 Comments · {comments.length} {expanded ? "▲" : "▼"}
+          {expanded ? "Hide comments" : "View comments"} · {comments.length} {expanded ? "▲" : "▼"}
         </button>
       </div>
 
