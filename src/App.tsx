@@ -99,19 +99,49 @@ export default function App() {
     return unsubscribe;
   }, []);
 
-  // Live unread-message count for the seller inbox bell.
+  // Live unread-message count for both buyer and seller conversations.
   useEffect(() => {
     const user = auth.currentUser;
     if (!user || !["home", "sellerInbox", "chat", "itemDetails", "postItem"].includes(step)) {
       setUnreadMessages(0);
       return;
     }
-    const unreadQuery = query(collection(db, "conversations"), where("sellerId", "==", user.uid));
-    return onSnapshot(unreadQuery, (snapshot) => {
-      const total = snapshot.docs.reduce((sum, conversationDoc) =>
-        sum + Math.max(0, Number(conversationDoc.data().sellerUnreadCount ?? 0)), 0);
-      setUnreadMessages(total);
-    }, (error) => console.error("UNREAD MESSAGE COUNT ERROR:", error));
+
+    let sellerUnread = 0;
+    let buyerUnread = 0;
+    const updateTotal = () => setUnreadMessages(sellerUnread + buyerUnread);
+
+    const sellerQuery = query(
+      collection(db, "conversations"),
+      where("sellerId", "==", user.uid)
+    );
+    const buyerQuery = query(
+      collection(db, "conversations"),
+      where("buyerId", "==", user.uid)
+    );
+
+    const unsubscribeSeller = onSnapshot(sellerQuery, (snapshot) => {
+      sellerUnread = snapshot.docs.reduce(
+        (sum, conversationDoc) =>
+          sum + Math.max(0, Number(conversationDoc.data().sellerUnreadCount ?? 0)),
+        0
+      );
+      updateTotal();
+    }, (error) => console.error("SELLER UNREAD COUNT ERROR:", error));
+
+    const unsubscribeBuyer = onSnapshot(buyerQuery, (snapshot) => {
+      buyerUnread = snapshot.docs.reduce(
+        (sum, conversationDoc) =>
+          sum + Math.max(0, Number(conversationDoc.data().buyerUnreadCount ?? 0)),
+        0
+      );
+      updateTotal();
+    }, (error) => console.error("BUYER UNREAD COUNT ERROR:", error));
+
+    return () => {
+      unsubscribeSeller();
+      unsubscribeBuyer();
+    };
   }, [step]);
 
   // LOGIN
