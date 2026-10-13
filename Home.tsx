@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import PostSocial from "./src/PostSocial";
 
 export type Item = {
   id?: string;
@@ -390,6 +391,9 @@ export default function Home({
               <p>📍 {item.location}</p>
 
               <p>{item.description}</p>
+
+              {/* LIVE LIKES AND COMMENTS */}
+              <PostSocial itemId={item.id} />
 
               {/* VIEW PRODUCT */}
               <button
