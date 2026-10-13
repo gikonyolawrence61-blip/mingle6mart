@@ -90,15 +90,37 @@ export default function Home({
         }}
       >
         <header className="mingle-brand" aria-label="MingleMart: Connect, Buy, Sell, Meet">
-          <div className="mingle-brand__wordmark">
-            <span className="mingle-brand__word mingle-brand__word--mingle">Mingle</span>
-            <span className="mingle-brand__word mingle-brand__word--mart">Mart</span>
+          <h1 className="mingle-brand__wordmark">
+            <span className="mingle-brand__word mingle-brand__word--mingle" aria-label="Mingle">
+              {"Mingle".split("").map((letter, index) => (
+                <span
+                  className="mingle-brand__letter"
+                  key={`mingle-${letter}-${index}`}
+                  style={{ animationDelay: `${index * 90}ms` }}
+                  aria-hidden="true"
+                >
+                  {letter}
+                </span>
+              ))}
+            </span>
+            <span className="mingle-brand__word mingle-brand__word--mart">
+              {"Mart".split("").map((letter, index) => (
+                <span
+                  className="mingle-brand__letter mingle-brand__letter--mart"
+                  key={`mart-${letter}-${index}`}
+                  style={{ animationDelay: `${620 + index * 90}ms` }}
+                  aria-hidden="true"
+                >
+                  {letter}
+                </span>
+              ))}
+            </span>
             <span className="mingle-brand__connections" aria-hidden="true">
               <span className="mingle-brand__dot mingle-brand__dot--one" />
               <span className="mingle-brand__dot mingle-brand__dot--two" />
               <span className="mingle-brand__dot mingle-brand__dot--three" />
             </span>
-          </div>
+          </h1>
           <p className="mingle-brand__tagline">CONNECT <span>•</span> BUY <span>•</span> SELL <span>•</span> MEET</p>
         </header>
 
