@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export type Item = {
   id?: string;
@@ -9,7 +9,49 @@ export type Item = {
   location: string;
   description: string;
   image?: string;
+  createdAt?: unknown;
 };
+
+
+function formatTimeAgo(value: unknown, now: number): string {
+  if (!value) return "Just now";
+
+  let postedAt: Date | null = null;
+
+  if (value instanceof Date) {
+    postedAt = value;
+  } else if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) postedAt = parsed;
+  } else if (typeof value === "object" && value !== null) {
+    const timestamp = value as { toDate?: () => Date; seconds?: number };
+    if (typeof timestamp.toDate === "function") {
+      try {
+        postedAt = timestamp.toDate();
+      } catch {
+        postedAt = null;
+      }
+    } else if (typeof timestamp.seconds === "number") {
+      postedAt = new Date(timestamp.seconds * 1000);
+    }
+  }
+
+  if (!postedAt || Number.isNaN(postedAt.getTime())) return "Recently posted";
+
+  const elapsedSeconds = Math.max(0, Math.floor((now - postedAt.getTime()) / 1000));
+  if (elapsedSeconds < 60) return "Just now";
+
+  const minutes = Math.floor(elapsedSeconds / 60);
+  if (minutes < 60) return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} ${days === 1 ? "day" : "days"} ago`;
+
+  return postedAt.toLocaleDateString();
+}
 
 type HomeProps = {
   items: Item[];
@@ -33,6 +75,13 @@ export default function Home({
   const [searchText, setSearchText] = useState("");
   const [selectedCategory, setSelectedCategory] =
     useState("All categories");
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
+
+  // Refresh relative timestamps once a minute so "5 minutes ago" stays current.
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentTime(Date.now()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   // Build a category list from the existing listings.
   const categories = useMemo(() => {
@@ -305,6 +354,24 @@ export default function Home({
               <h3 style={{ margin: "5px 0" }}>
                 {item.title}
               </h3>
+
+              <p
+                style={{
+                  color: "#64748b",
+                  fontSize: "13px",
+                  margin: "4px 0 10px",
+                }}
+                title={(() => {
+                  const value = item.createdAt as { toDate?: () => Date } | Date | string | number | null | undefined;
+                  let date: Date | null = null;
+                  if (value instanceof Date) date = value;
+                  else if (typeof value === "string" || typeof value === "number") date = new Date(value);
+                  else if (value && typeof value === "object" && typeof value.toDate === "function") date = value.toDate();
+                  return date && !Number.isNaN(date.getTime()) ? date.toLocaleString() : "Posting time";
+                })()}
+              >
+                🕒 {formatTimeAgo(item.createdAt, currentTime)}
+              </p>
 
               <p
                 style={{
