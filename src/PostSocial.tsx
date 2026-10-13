@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent, type MouseEvent } from "react";
 import {
   addDoc,
   collection,
@@ -79,7 +79,7 @@ export default function PostSocial({ itemId }: PostSocialProps) {
     };
   }, [itemId]);
 
-  const toggleLike = async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const toggleLike = async (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     if (!user) {
       setError("Please log in to like a post.");
