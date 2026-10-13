@@ -109,7 +109,7 @@ export default function Home({
             cursor: "pointer",
           }}
         >
-          📥 Seller Inbox{unreadMessages > 0 ? ` 🔔 ${unreadMessages}` : ""}
+          💬 Messages{unreadMessages > 0 ? ` 🔔 ${unreadMessages}` : ""}
         </button>
 
         <button
