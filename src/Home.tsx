@@ -18,6 +18,7 @@ type HomeProps = {
   onPostItem: () => void;
   onViewItem: (item: Item) => void;
   onOpenSellerInbox: () => void;
+  unreadMessages?: number;
   onDeleteItem: (item: Item) => void;
 };
 
@@ -27,6 +28,7 @@ export default function Home({
   onPostItem,
   onViewItem,
   onOpenSellerInbox,
+  unreadMessages = 0,
   onDeleteItem,
 }: HomeProps) {
   const [searchText, setSearchText] = useState("");
@@ -107,7 +109,7 @@ export default function Home({
             cursor: "pointer",
           }}
         >
-          📥 Seller Inbox
+          📥 Seller Inbox{unreadMessages > 0 ? ` 🔔 ${unreadMessages}` : ""}
         </button>
 
         <button
