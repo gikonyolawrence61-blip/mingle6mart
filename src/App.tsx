@@ -21,8 +21,8 @@ import Verification from "./Verification";
 import Confirmation from "./Confirmation";
 
 // FIXED: Home.tsx is in the repository root.
-import Home from "./Home";
-import type { Item } from "./Home";
+import Home from "../Home";
+import type { Item } from "../Home";
 
 import PostItem from "./PostItem";
 import ItemDetails from "./ItemDetails";
