@@ -68,6 +68,7 @@ type HomeProps = {
   onDeleteItem: (item: Item) => void;
   isAdmin: boolean;
   onToggleFeatured: (item: Item) => void;
+  onOpenAdmin: () => void;
 };
 
 export default function Home({
@@ -80,6 +81,7 @@ export default function Home({
   onDeleteItem,
   isAdmin,
   onToggleFeatured,
+  onOpenAdmin,
 }: HomeProps) {
   const [searchText, setSearchText] = useState("");
   const [selectedCategory, setSelectedCategory] =
@@ -216,6 +218,16 @@ export default function Home({
             {unreadMessages > 0 && <span aria-label={`${unreadMessages} unread messages`} style={{ background: "#dc2626", color: "white", borderRadius: "999px", minWidth: "24px", padding: "3px 7px", fontSize: "13px", fontWeight: "bold" }}>{unreadMessages > 99 ? "99+" : unreadMessages}</span>}
           </span>
         </button>
+
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={onOpenAdmin}
+            style={{ width: "100%", padding: "12px", marginBottom: "15px", background: "#10243a", color: "white", border: "none", borderRadius: "10px", fontSize: "16px", fontWeight: "bold", cursor: "pointer" }}
+          >
+            🛡️ Admin area · Promotion requests
+          </button>
+        )}
 
         <button
           onClick={onPostItem}
