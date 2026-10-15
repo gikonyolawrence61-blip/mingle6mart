@@ -28,6 +28,7 @@ import PostItem from "./PostItem";
 import ItemDetails from "./ItemDetails";
 import Chat from "./Chat";
 import SellerInbox from "./SellerInbox";
+import AdminPromotions from "./AdminPromotions";
 
 type Step =
   | "login"
@@ -38,7 +39,8 @@ type Step =
   | "postItem"
   | "itemDetails"
   | "chat"
-  | "sellerInbox";
+  | "sellerInbox"
+  | "adminPromotions";
 
 export default function App() {
   const [step, setStep] = useState<Step>("login");
@@ -364,6 +366,7 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
             onOpenSellerInbox={() => setStep("sellerInbox")}
             unreadMessages={unreadMessages}
             onDeleteItem={handleDeleteItem}
+            onOpenAdmin={() => setStep("adminPromotions")}
           />
         </div>
       )}
@@ -415,6 +418,11 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
             setStep("chat");
           }}
         />
+      )}
+
+      {/* ADMIN PROMOTION REQUESTS */}
+      {step === "adminPromotions" && (
+        <AdminPromotions onBack={() => setStep("home")} />
       )}
     </div>
   );
