@@ -10,6 +10,7 @@ import {
   query,
   serverTimestamp,
   where,
+  updateDoc,
 } from "firebase/firestore";
 
 import { auth, db } from "./firebase";
@@ -79,6 +80,9 @@ export default function App() {
             description: String(data.description ?? ""),
             image: String(data.image ?? ""),
             createdAt: data.createdAt ?? null,
+            isFeatured: data.isFeatured === true,
+            promotionStatus: String(data.promotionStatus ?? ""),
+            featuredUntil: data.featuredUntil ?? null,
           };
         });
 
@@ -203,6 +207,26 @@ export default function App() {
       setItemsError(
         "Your item could not be saved. Check your internet connection and Firestore security rules."
       );
+    }
+  };
+
+  const ADMIN_UID = "cxdj2L9iUSPw4Z6EPrarWGdYp5r2";
+  const isAdmin = auth.currentUser?.uid === ADMIN_UID;
+
+  // Admin can manually feature/unfeature a listing. Firestore rules must restrict this field to the admin.
+  const handleToggleFeatured = async (item: Item) => {
+    if (!isAdmin || !item.id) {
+      alert("Only the MingleMart administrator can feature listings.");
+      return;
+    }
+    try {
+      await updateDoc(doc(db, "items", item.id), {
+        isFeatured: !item.isFeatured,
+        featuredUpdatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error("FEATURE LISTING ERROR:", error);
+      alert("Could not update this listing. Firestore security rules must allow only the admin to change isFeatured.");
     }
   };
 
@@ -333,6 +357,8 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
           <Home
             items={items}
             currentUserId={auth.currentUser?.uid ?? ""}
+            isAdmin={isAdmin}
+            onToggleFeatured={handleToggleFeatured}
             onPostItem={handlePostItem}
             onViewItem={handleViewItem}
             onOpenSellerInbox={() => setStep("sellerInbox")}
