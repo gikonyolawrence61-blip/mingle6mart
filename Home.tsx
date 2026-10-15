@@ -117,7 +117,7 @@ export default function Home({
     return !!expiryDate && !Number.isNaN(expiryDate.getTime()) && expiryDate.getTime() > Date.now();
   };
 
-  const featuredItems = useMemo(() => items.filter(isCurrentlyFeatured), [items]);
+  const featuredItems = useMemo(() => items.filter(isCurrentlyFeatured), [items, currentTime]);
 
   // Search and category filtering work together.
   const filteredItems = useMemo(() => {
