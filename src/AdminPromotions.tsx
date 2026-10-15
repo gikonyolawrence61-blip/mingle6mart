@@ -8,6 +8,7 @@ import {
   serverTimestamp,
   Timestamp,
   updateDoc,
+  writeBatch,
 } from "firebase/firestore";
 import { auth, db } from "./firebase";
 
@@ -101,19 +102,21 @@ export default function AdminPromotions({ onBack }: AdminPromotionsProps) {
     setError("");
     try {
       const expires = new Date(Date.now() + Math.max(1, request.durationDays) * 24 * 60 * 60 * 1000);
-      await updateDoc(doc(db, "items", request.itemId), {
+      const batch = writeBatch(db);
+      batch.update(doc(db, "items", request.itemId), {
         isFeatured: true,
         promotionStatus: "active",
         featuredUntil: Timestamp.fromDate(expires),
         featuredUpdatedAt: serverTimestamp(),
       });
-      await updateDoc(doc(db, "promotionRequests", request.id), {
+      batch.update(doc(db, "promotionRequests", request.id), {
         status: "approved",
         paymentStatus: "paid",
         reviewedAt: serverTimestamp(),
         reviewedBy: auth.currentUser?.uid ?? "",
         activatedUntil: Timestamp.fromDate(expires),
       });
+      await batch.commit();
     } catch (err) {
       console.error("ACTIVATE PROMOTION ERROR:", err);
       setError("Could not activate this promotion. Confirm the listing exists and that Firestore security rules allow only the admin to update promotion records and featured fields.");
