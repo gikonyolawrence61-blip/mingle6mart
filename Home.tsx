@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import PostSocial from "./src/PostSocial";
+import PromotionRequest from "./src/PromotionRequest";
 
 export type Item = {
   id?: string;
@@ -11,6 +12,9 @@ export type Item = {
   description: string;
   image?: string;
   createdAt?: unknown;
+  isFeatured?: boolean;
+  promotionStatus?: string;
+  featuredUntil?: unknown;
 };
 
 
@@ -62,6 +66,8 @@ type HomeProps = {
   onOpenSellerInbox: () => void;
   unreadMessages: number;
   onDeleteItem: (item: Item) => void;
+  isAdmin: boolean;
+  onToggleFeatured: (item: Item) => void;
 };
 
 export default function Home({
@@ -72,6 +78,8 @@ export default function Home({
   onOpenSellerInbox,
   unreadMessages,
   onDeleteItem,
+  isAdmin,
+  onToggleFeatured,
 }: HomeProps) {
   const [searchText, setSearchText] = useState("");
   const [selectedCategory, setSelectedCategory] =
@@ -96,6 +104,20 @@ export default function Home({
 
     return ["All categories", ...uniqueCategories];
   }, [items]);
+
+  // A listing is featured manually by the admin, or while a paid promotion is active.
+  const isCurrentlyFeatured = (item: Item) => {
+    if (item.isFeatured) return true;
+    if (item.promotionStatus !== "active" || !item.featuredUntil) return false;
+    const expiry = item.featuredUntil as { toDate?: () => Date } | Date | string | number;
+    let expiryDate: Date | null = null;
+    if (expiry instanceof Date) expiryDate = expiry;
+    else if (typeof expiry === "string" || typeof expiry === "number") expiryDate = new Date(expiry);
+    else if (expiry && typeof expiry === "object" && typeof expiry.toDate === "function") expiryDate = expiry.toDate();
+    return !!expiryDate && !Number.isNaN(expiryDate.getTime()) && expiryDate.getTime() > Date.now();
+  };
+
+  const featuredItems = useMemo(() => items.filter(isCurrentlyFeatured), [items, currentTime]);
 
   // Search and category filtering work together.
   const filteredItems = useMemo(() => {
@@ -279,7 +301,25 @@ export default function Home({
           ))}
         </select>
 
-        <h2>Items near you</h2>
+        {featuredItems.length > 0 && (
+          <section aria-label="Featured Listings" style={{ marginTop: "18px", marginBottom: "24px", padding: "16px", background: "#fff7df", border: "1px solid #f4c65e", borderRadius: "14px" }}>
+            <h2 style={{ marginTop: 0, color: "#92400e" }}>🔥 Featured Listings</h2>
+            <p style={{ marginTop: 0, color: "#78350f" }}>Products featured by MingleMart or currently on paid promotion.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(145px, 1fr))", gap: "12px" }}>
+              {featuredItems.map((item) => (
+                <button key={item.id ?? `${item.title}-${item.location}`} type="button" onClick={() => onViewItem(item)} style={{ textAlign: "left", background: "white", border: "1px solid #f4c65e", borderRadius: "10px", padding: "10px", cursor: "pointer", color: "#172033" }}>
+                  {item.image && <img src={item.image} alt={item.title} loading="lazy" style={{ width: "100%", height: "110px", objectFit: "cover", borderRadius: "7px" }} />}
+                  <span style={{ display: "inline-block", marginTop: "6px", padding: "3px 6px", background: "#fef3c7", color: "#92400e", borderRadius: "5px", fontSize: "11px", fontWeight: 800 }}>🔥 FEATURED</span>
+                  <strong style={{ display: "block", marginTop: "5px" }}>{item.title}</strong>
+                  <strong style={{ display: "block", color: "#1565c0", marginTop: "4px" }}>KSh {item.price}</strong>
+                  <span style={{ display: "block", fontSize: "12px", color: "#526174", marginTop: "4px" }}>📍 {item.location}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <h2>🛍️ All Listings</h2>
 
         <p style={{ color: "#526174" }}>
           Showing {filteredItems.length} of {items.length} listings
@@ -395,6 +435,12 @@ export default function Home({
               {/* LIVE LIKES AND COMMENTS */}
               <PostSocial itemId={item.id} />
 
+              {isAdmin && item.id && (
+                <button type="button" onClick={(event) => { event.stopPropagation(); onToggleFeatured(item); }} style={{ width: "100%", marginBottom: "8px", padding: "11px", background: item.isFeatured ? "#475569" : "#f59e0b", color: item.isFeatured ? "white" : "#422006", border: "none", borderRadius: "8px", fontWeight: 700, cursor: "pointer" }}>
+                  {item.isFeatured ? "⭐ Remove from Featured Listings" : "⭐ Feature Listing (Admin)"}
+                </button>
+              )}
+
               {/* VIEW PRODUCT */}
               <button
                 onClick={(event) => {
@@ -414,6 +460,11 @@ export default function Home({
               >
                 View Item
               </button>
+
+              {/* SELLER PROMOTION REQUEST */}
+              {currentUserId !== "" && item.sellerId === currentUserId && (
+                <PromotionRequest itemId={item.id} itemTitle={item.title} />
+              )}
 
               {/* SELLER-OWNED LISTING DELETION */}
               {currentUserId !== "" &&
