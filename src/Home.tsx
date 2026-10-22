@@ -1,5 +1,6 @@
 import PostSocial from "./PostSocial";
 import PromotionRequest from "./PromotionRequest";
+import HotNewsTicker from "./HotNewsTicker";
 import { useMemo, useState } from "react";
 
 export type Item = {
@@ -94,6 +95,8 @@ export default function Home({
         <h1 style={{ color: "#1565c0" }}>MingleMart</h1>
 
         <p>Connect • Buy • Sell • Meet</p>
+
+        <HotNewsTicker />
 
         <button
           onClick={onOpenSellerInbox}
