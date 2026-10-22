@@ -1,4 +1,5 @@
  import { useEffect, useState } from "react";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 import {
   addDoc,
@@ -58,6 +59,16 @@ export default function App() {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
   const [chatItem, setChatItem] = useState<Item | null>(null);
+
+  // Restore an already verified session after a page refresh.
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user?.emailVerified) {
+        setStep((currentStep) => currentStep === "login" ? "home" : currentStep);
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   // LOAD SAVED LISTINGS FROM FIRESTORE
   useEffect(() => {
@@ -154,6 +165,17 @@ export default function App() {
   // LOGIN
   const handleLogin = () => {
     setStep("home");
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      setUnreadMessages(0);
+      setStep("login");
+    } catch (error) {
+      console.error("SIGN OUT ERROR:", error);
+      alert("Could not sign out. Please try again.");
+    }
   };
 
   // REGISTRATION
@@ -359,6 +381,12 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
           <Home
             items={items}
             currentUserId={auth.currentUser?.uid ?? ""}
+            userName={
+              auth.currentUser?.displayName?.trim() ||
+              auth.currentUser?.email?.split("@")[0] ||
+              ""
+            }
+            onSignOut={handleSignOut}
             isAdmin={isAdmin}
             onToggleFeatured={handleToggleFeatured}
             onPostItem={handlePostItem}
