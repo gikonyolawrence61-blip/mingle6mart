@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "./firebase";
 
 type LoginProps = {
@@ -15,8 +15,30 @@ type LoginProps = {
             const [password, setPassword] = useState("");
               const [error, setError] = useState("");
                 const [loading, setLoading] = useState(false);
+                  const [resetMessage, setResetMessage] = useState("");
 
-                  const handleLogin = async () => {
+                  
+                  const handleForgotPassword = async () => {
+                    setError("");
+                    setResetMessage("");
+                    const emailAddress = email.trim();
+                    if (!emailAddress) {
+                      setError("Enter your email address first, then tap Forgot Password.");
+                      return;
+                    }
+                    setLoading(true);
+                    try {
+                      await sendPasswordResetEmail(auth, emailAddress);
+                      setResetMessage("If an account exists for that email, a password-reset link will be sent. Check your inbox and spam folder.");
+                    } catch (err) {
+                      console.error("Password reset request error:", err);
+                      setResetMessage("If an account exists for that email, a password-reset link will be sent. Check your inbox and spam folder.");
+                    } finally {
+                      setLoading(false);
+                    }
+                  };
+
+const handleLogin = async () => {
                       setError("");
 
                           if (!email.trim() || !password) {
@@ -80,7 +102,18 @@ type LoginProps = {
                                                                                                                                                                                                                                                                                                                                                                             style={inputStyle}
                                                                                                                                                                                                                                                                                                                                                                                     />
 
-                                                                                                                                                                                                                                                                                                                                                                                            <input
+                                                                                                                                                                                                                                                                                                                                                                                            
+                                                                                                                                                                                                                                                        <button
+                                                                                                                                                                                                                                                          type="button"
+                                                                                                                                                                                                                                                          onClick={() => void handleForgotPassword()}
+                                                                                                                                                                                                                                                          disabled={loading}
+                                                                                                                                                                                                                                                          style={{ background: "transparent", border: "none", color: "#16803c", cursor: loading ? "wait" : "pointer", textDecoration: "underline", marginBottom: "12px", fontSize: "14px" }}
+                                                                                                                                                                                                                                                        >
+                                                                                                                                                                                                                                                          Forgot Password?
+                                                                                                                                                                                                                                                        </button>
+                                                                                                                                                                                                                                                        {resetMessage && <p role="status" style={{ color: "#16803c", fontSize: "14px" }}>{resetMessage}</p>}
+
+<input
                                                                                                                                                                                                                                                                                                                                                                                                       type="password"
                                                                                                                                                                                                                                                                                                                                                                                                                 placeholder="Password"
                                                                                                                                                                                                                                                                                                                                                                                                                           value={password}
