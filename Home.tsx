@@ -218,7 +218,7 @@ export default function Home({
         </header>
 
         {/* Personalised greeting and account dropdown */}
-        <section
+        <div
           style={{
             display: "flex",
             alignItems: "center",
@@ -319,7 +319,7 @@ export default function Home({
               </div>
             )}
           </div>
-        </section>
+        </div>
 
         <button
           onClick={onOpenSellerInbox}
