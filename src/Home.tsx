@@ -1,20 +1,6 @@
 import PostSocial from "./PostSocial";
 import PromotionRequest from "./PromotionRequest";
 import { useMemo, useState } from "react";
-import type React from "react";
-
-const profileMenuButtonStyle: React.CSSProperties = {
-  display: "block",
-  width: "100%",
-  padding: "10px",
-  textAlign: "left",
-  border: "none",
-  borderRadius: "8px",
-  background: "#ffffff",
-  color: "#10243a",
-  fontSize: "14px",
-  cursor: "pointer",
-};
 
 export type Item = {
   id?: string;
@@ -35,11 +21,6 @@ type HomeProps = {
   onOpenSellerInbox: () => void;
   unreadMessages?: number;
   onDeleteItem: (item: Item) => void;
-  userName?: string;
-  onSignOut?: () => void;
-  isAdmin?: boolean;
-  onToggleFeatured?: (item: Item) => void;
-  onOpenAdmin?: () => void;
 };
 
 export default function Home({
@@ -50,13 +31,8 @@ export default function Home({
   onOpenSellerInbox,
   unreadMessages = 0,
   onDeleteItem,
-  userName = "",
-  onSignOut,
-  isAdmin = false,
-  onOpenAdmin,
 }: HomeProps) {
   const [searchText, setSearchText] = useState("");
-  const [profileOpen, setProfileOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] =
     useState("All categories");
 
@@ -115,114 +91,9 @@ export default function Home({
           margin: "0 auto",
         }}
       >
-        {/* BRAND AND SIGNED-IN PROFILE */}
-        <header
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "12px",
-            flexWrap: "wrap",
-            marginBottom: "12px",
-          }}
-        >
-          <div>
-            <h1 style={{ color: "#1565c0", margin: "0 0 5px" }}>MingleMart</h1>
-            <p style={{ margin: 0 }}>Connect • Buy • Sell • Meet</p>
-          </div>
-          <div style={{ position: "relative" }}>
-            <button
-              type="button"
-              onClick={() => setProfileOpen((open) => !open)}
-              aria-expanded={profileOpen}
-              aria-label="Open account menu"
-              style={{
-                padding: "10px 13px",
-                border: "1px solid #d1d5db",
-                borderRadius: "999px",
-                background: "#ffffff",
-                color: "#10243a",
-                fontWeight: 700,
-                fontSize: "15px",
-                cursor: "pointer",
-              }}
-            >
-              👤 {userName || "My Account"} ▼
-            </button>
-            {profileOpen && (
-              <div
-                role="menu"
-                style={{
-                  position: "absolute",
-                  right: 0,
-                  top: "calc(100% + 8px)",
-                  zIndex: 20,
-                  width: "210px",
-                  padding: "8px",
-                  background: "#ffffff",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "12px",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.14)",
-                }}
-              >
-                <p style={{ padding: "8px 10px", margin: 0, color: "#526174", overflowWrap: "anywhere" }}>
-                  Signed in as <strong style={{ color: "#10243a" }}>{userName || "MingleMart member"}</strong>
-                </p>
-                {isAdmin && onOpenAdmin && (
-                  <button
-                    role="menuitem"
-                    onClick={() => {
-                      setProfileOpen(false);
-                      onOpenAdmin();
-                    }}
-                    style={profileMenuButtonStyle}
-                  >
-                    🛠️ Admin promotions
-                  </button>
-                )}
-                <button
-                  role="menuitem"
-                  onClick={() => {
-                    setProfileOpen(false);
-                    onOpenSellerInbox();
-                  }}
-                  style={profileMenuButtonStyle}
-                >
-                  💬 My Messages
-                </button>
-                {onSignOut && (
-                  <button
-                    role="menuitem"
-                    onClick={() => {
-                      setProfileOpen(false);
-                      onSignOut();
-                    }}
-                    style={{ ...profileMenuButtonStyle, color: "#b91c1c" }}
-                  >
-                    🚪 Sign Out
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        </header>
+        <h1 style={{ color: "#1565c0" }}>MingleMart</h1>
 
-        <section
-          style={{
-            margin: "16px 0 20px",
-            padding: "18px",
-            borderRadius: "14px",
-            background: "linear-gradient(120deg, #e0f2fe, #dcfce7)",
-            border: "1px solid #bfdbfe",
-          }}
-        >
-          <h2 style={{ margin: "0 0 6px", color: "#10243a" }}>
-            👋 Welcome back{userName ? `, ${userName}` : ""}!
-          </h2>
-          <p style={{ margin: 0, color: "#334155" }}>
-            Ready to discover something amazing today?
-          </p>
-        </section>
+        <p>Connect • Buy • Sell • Meet</p>
 
         <button
           onClick={onOpenSellerInbox}
