@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import type { FormEvent } from "react";
 import { doc, collection, onSnapshot, orderBy, query, serverTimestamp, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import type { Item } from "../Home";
@@ -84,7 +85,7 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
     [reviews]
   );
 
-  const saveReview = async (event: React.FormEvent<HTMLFormElement>) => {
+  const saveReview = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const user = auth.currentUser;
     if (!user) {
