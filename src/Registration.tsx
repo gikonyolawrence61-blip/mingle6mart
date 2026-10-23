@@ -5,7 +5,8 @@ import {
       sendEmailVerification,
       } from "firebase/auth";
 
-      import { auth } from "./firebase";
+      import { auth, db } from "./firebase";
+      import { doc, serverTimestamp, setDoc, Timestamp } from "firebase/firestore";
 
       type RegistrationProps = {
         onRegistered: (email: string) => void;
@@ -59,6 +60,20 @@ import {
                                                                                                                                                                                 });
 
                                                                                                                                                                                       await sendEmailVerification(result.user);
+
+                                                                                                                                                                                            try {
+                                                                                                                                                                                              await setDoc(doc(db, "users", result.user.uid), {
+                                                                                                                                                                                                uid: result.user.uid,
+                                                                                                                                                                                                displayName: name.trim(),
+                                                                                                                                                                                                email: result.user.email ?? email.trim(),
+                                                                                                                                                                                                emailVerified: result.user.emailVerified,
+                                                                                                                                                                                                createdAt: Timestamp.fromDate(result.user.metadata.creationTime ? new Date(result.user.metadata.creationTime) : new Date()),
+                                                                                                                                                                                                lastSeenAt: serverTimestamp(),
+                                                                                                                                                                                              }, { merge: true });
+                                                                                                                                                                                            } catch (profileError) {
+                                                                                                                                                                                              // Account creation should still succeed if profile rules need configuring.
+                                                                                                                                                                                              console.error("Could not save new user profile:", profileError);
+                                                                                                                                                                                            }
 
                                                                                                                                                                                             onRegistered(email.trim());
                                                                                                                                                                                                 } catch (error: any) {
