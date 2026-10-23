@@ -637,6 +637,22 @@ export default function Home({
 
               <p>📍 {item.location}</p>
 
+              <div
+                aria-label={`Listing statistics: ${Number(item.totalViews ?? 0)} total views and ${Number(item.uniqueVisitors ?? 0)} unique visitors`}
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "8px 14px",
+                  alignItems: "center",
+                  color: "#475569",
+                  fontSize: "14px",
+                  margin: "8px 0",
+                }}
+              >
+                <span>👁️ {Number(item.totalViews ?? 0)} views</span>
+                <span>👥 {Number(item.uniqueVisitors ?? 0)} visitors</span>
+              </div>
+
               <p>{item.description}</p>
 
               <button
