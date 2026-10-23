@@ -209,13 +209,9 @@ export default function Home({
     const search = searchText.trim().toLowerCase();
 
     return items.filter((item) => {
-      const searchableText = [
-        item.title,
-        item.category,
-        item.location,
-        item.description,
-        item.price,
-      ];
+      const searchableText = currentUserId
+        ? [item.title, item.category, item.location, item.description, item.price]
+        : [item.title, item.category];
 
       const matchesSearch =
         search === "" ||
@@ -229,7 +225,7 @@ export default function Home({
 
       return matchesSearch && matchesCategory;
     }).sort((a, b) => getCreatedAtMillis(b.createdAt) - getCreatedAtMillis(a.createdAt));
-  }, [items, searchText, selectedCategory]);
+  }, [items, searchText, selectedCategory, currentUserId]);
 
   return (
     <div
@@ -560,9 +556,15 @@ export default function Home({
               <div className="mingle-featured-details" style={{ position: "relative", zIndex: 1, display: "flex", minHeight: "250px", boxSizing: "border-box", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-start", padding: "20px", animation: "mingleFeaturedDetails 4s ease-in-out infinite" }}>
                 <span style={{ display: "inline-block", marginBottom: "8px", padding: "5px 8px", background: "#fef3c7", color: "#92400e", borderRadius: "6px", fontSize: "12px", fontWeight: 800 }}>🔥 FEATURED</span>
                 <strong style={{ display: "block", fontSize: "clamp(20px, 5vw, 28px)", lineHeight: 1.2, textShadow: "0 2px 5px rgba(0,0,0,0.65)" }}>{activeFeaturedItem.title}</strong>
-                <strong style={{ display: "block", color: "#fde68a", fontSize: "22px", marginTop: "8px", textShadow: "0 2px 5px rgba(0,0,0,0.65)" }}>KSh {activeFeaturedItem.price}</strong>
-                <span style={{ display: "block", fontSize: "14px", marginTop: "6px", textShadow: "0 2px 5px rgba(0,0,0,0.65)" }}>📍 {activeFeaturedItem.location}</span>
-                <span style={{ display: "block", fontSize: "12px", marginTop: "10px", opacity: 0.9 }}>Tap to view listing</span>
+                {currentUserId ? (
+                  <>
+                    <strong style={{ display: "block", color: "#fde68a", fontSize: "22px", marginTop: "8px", textShadow: "0 2px 5px rgba(0,0,0,0.65)" }}>KSh {activeFeaturedItem.price}</strong>
+                    <span style={{ display: "block", fontSize: "14px", marginTop: "6px", textShadow: "0 2px 5px rgba(0,0,0,0.65)" }}>📍 {activeFeaturedItem.location}</span>
+                  </>
+                ) : (
+                  <span style={{ display: "block", fontSize: "14px", marginTop: "8px", color: "#fde68a", fontWeight: 700 }}>🔒 Sign in to view price and details</span>
+                )}
+                <span style={{ display: "block", fontSize: "12px", marginTop: "10px", opacity: 0.9 }}>{currentUserId ? "Tap to view listing" : "Sign in to unlock this listing"}</span>
               </div>
             </button>
             {featuredItems.length > 1 && (
@@ -673,47 +675,37 @@ export default function Home({
                 🕒 {formatTimeAgo(item.createdAt, currentTime)}
               </p>
 
-              <p
-                style={{
-                  color: "#1565c0",
-                  fontSize: "18px",
-                  fontWeight: "bold",
-                }}
-              >
-                KSh {item.price}
-              </p>
-
-              <p>
-                <strong>Category:</strong> {item.category}
-              </p>
-
-              <p>📍 {item.location}</p>
-
-              <div
-                aria-label={`Listing statistics: ${Number(item.totalViews ?? 0)} total views and ${Number(item.uniqueVisitors ?? 0)} unique visitors`}
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "8px 14px",
-                  alignItems: "center",
-                  color: "#475569",
-                  fontSize: "14px",
-                  margin: "8px 0",
-                }}
-              >
-                <span>👁️ {Number(item.totalViews ?? 0)} views</span>
-                <span>👥 {Number(item.uniqueVisitors ?? 0)} visitors</span>
-              </div>
-
-              <p>{item.description}</p>
+              {currentUserId ? (
+                <>
+                  <p style={{ color: "#1565c0", fontSize: "18px", fontWeight: "bold" }}>KSh {item.price}</p>
+                  <p><strong>Category:</strong> {item.category}</p>
+                  <p>📍 {item.location}</p>
+                  <div
+                    aria-label={`Listing statistics: ${Number(item.totalViews ?? 0)} total views and ${Number(item.uniqueVisitors ?? 0)} unique visitors`}
+                    style={{ display: "flex", flexWrap: "wrap", gap: "8px 14px", alignItems: "center", color: "#475569", fontSize: "14px", margin: "8px 0" }}
+                  >
+                    <span>👁️ {Number(item.totalViews ?? 0)} views</span>
+                    <span>👥 {Number(item.uniqueVisitors ?? 0)} visitors</span>
+                  </div>
+                  <p>{item.description}</p>
+                </>
+              ) : (
+                <div style={{ margin: "12px 0", padding: "12px", border: "1px dashed #93c5fd", borderRadius: "9px", background: "#eff6ff", color: "#1e3a8a", textAlign: "center" }}>
+                  🔒 <strong>Sign in or create an account</strong> to view the price, location and full product details.
+                </div>
+              )}
 
               <button
                 type="button"
                 onClick={(event) => {
                   event.stopPropagation();
+                  if (!currentUserId) {
+                    onSignIn();
+                    return;
+                  }
                   shareListingOnWhatsApp(item);
                 }}
-                aria-label={`Share ${item.title} on WhatsApp`}
+                aria-label={currentUserId ? `Share ${item.title} on WhatsApp` : `Sign in to share ${item.title} on WhatsApp`}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -731,10 +723,10 @@ export default function Home({
                   cursor: "pointer",
                 }}
               >
-                Share on WhatsApp
+                {currentUserId ? "Share on WhatsApp" : "🔒 Sign in to share on WhatsApp"}
               </button>
 
-              {/* LIVE LIKES AND COMMENTS */}
+              
               <PostSocial itemId={item.id} />
 
               {isAdmin && item.id && (
@@ -760,7 +752,7 @@ export default function Home({
                   cursor: "pointer",
                 }}
               >
-                View Item
+                {currentUserId ? "View Item Details" : "🔒 Sign in to view details"}
               </button>
 
               {/* SELLER PROMOTION REQUEST */}
