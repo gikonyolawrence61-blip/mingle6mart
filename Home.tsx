@@ -766,46 +766,7 @@ export default function Home({
           ))
         )}
 
-        <footer
-          style={{
-            marginTop: "30px",
-            padding: "24px 15px",
-            background: "#10243a",
-            color: "white",
-            textAlign: "center",
-            borderRadius: "12px",
-          }}
-        ><div style={{ margin: "18px auto", padding: "15px", maxWidth: "420px", background: "#17344f", border: "1px solid #36536d", borderRadius: "10px", textAlign: "left" }}>
-            <h3 style={{ margin: "0 0 12px", textAlign: "center" }}>📞 Contact MingleMart</h3>
-            <p style={{ margin: "10px 0" }}>
-              💬 WhatsApp:{" "}
-              <a href="https://wa.me/254714802454" target="_blank" rel="noopener noreferrer" style={{ color: "#86efac", fontWeight: 700 }}>
-                Chat with us
-              </a>
-            </p>
-            <p style={{ margin: "10px 0" }}>
-              📱 Call:{" "}
-              <a href="tel:+254714802454" style={{ color: "#bfdbfe", fontWeight: 700 }}>
-                0714 802 454
-              </a>
-            </p>
-            <p style={{ margin: "10px 0", overflowWrap: "anywhere" }}>
-              ✉️ Email:{" "}
-              <a href="mailto:gikonyolawrence61@gmail.com" style={{ color: "#bfdbfe", fontWeight: 700 }}>
-                gikonyolawrence61@gmail.com
-              </a>
-            </p>
-          </div>
 
-          <p
-            style={{
-              fontSize: "12px",
-              color: "#cbd5e1",
-            }}
-          >
-            © 2026 MingleMart. All rights reserved.
-          </p>
-        </footer>
       </div>
     </div>
   );
