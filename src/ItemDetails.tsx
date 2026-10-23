@@ -38,6 +38,11 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
   const [comment, setComment] = useState("");
   const [savingReview, setSavingReview] = useState(false);
   const [reviewMessage, setReviewMessage] = useState("");
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("Scam or suspected fraud");
+  const [reportDetails, setReportDetails] = useState("");
+  const [savingReport, setSavingReport] = useState(false);
+  const [reportMessage, setReportMessage] = useState("");
   const [liveTotalViews, setLiveTotalViews] = useState(Number((item as Item & { totalViews?: number }).totalViews ?? 0));
   const [liveUniqueVisitors, setLiveUniqueVisitors] = useState(Number((item as Item & { uniqueVisitors?: number }).uniqueVisitors ?? 0));
   // Keep the displayed view counts in sync with Firestore.
@@ -143,6 +148,49 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
     [reviews]
   );
 
+  const submitReport = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const user = auth.currentUser;
+    if (!user) {
+      setReportMessage("Please sign in before reporting a listing.");
+      return;
+    }
+    if (!item.id) {
+      setReportMessage("This listing is missing its ID, so it cannot be reported.");
+      return;
+    }
+    if (isSeller) {
+      setReportMessage("You cannot report your own listing.");
+      return;
+    }
+    setSavingReport(true);
+    setReportMessage("");
+    try {
+      // One report per account per listing prevents accidental duplicate submissions.
+      const reportId = `${item.id}_${user.uid}`;
+      await setDoc(doc(db, "reports", reportId), {
+        listingId: item.id,
+        listingTitle: item.title,
+        listingSellerId: item.sellerId ?? "",
+        reporterId: user.uid,
+        reporterEmail: user.email ?? "",
+        reason: reportReason,
+        details: reportDetails.trim().slice(0, 500),
+        status: "pending",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      setReportMessage("Thank you. Your report has been submitted for admin review.");
+      setReportDetails("");
+      setReportOpen(false);
+    } catch (error) {
+      console.error("Could not submit listing report:", error);
+      setReportMessage("Your report could not be saved. Firestore security rules must allow signed-in users to submit reports safely.");
+    } finally {
+      setSavingReport(false);
+    }
+  };
+
   const saveReview = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const user = auth.currentUser;
@@ -247,6 +295,42 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
         <button onClick={onContactSeller} style={{ width: "100%", padding: "16px", marginTop: "20px", background: "#1565c0", color: "white", border: "none", borderRadius: "10px", fontSize: "18px", fontWeight: "bold", cursor: "pointer" }}>
           💬 Contact Seller
         </button>
+
+        {!isSeller && currentUser && (
+          <div style={{ marginTop: "14px", padding: "14px", border: "1px solid #fecaca", borderRadius: "12px", background: "#fff7f7" }}>
+            <button
+              type="button"
+              onClick={() => { setReportOpen((open) => !open); setReportMessage(""); }}
+              aria-expanded={reportOpen}
+              style={{ width: "100%", padding: "12px", background: "#fff", color: "#b91c1c", border: "1px solid #fca5a5", borderRadius: "8px", fontWeight: 700, cursor: "pointer" }}
+            >
+              🚩 Report suspicious listing
+            </button>
+            {reportOpen && (
+              <form onSubmit={submitReport} style={{ marginTop: "14px" }}>
+                <p style={{ marginTop: 0, color: "#7f1d1d" }}>Tell us what looks wrong. Reports are sent to MingleMart for review.</p>
+                <label htmlFor="report-reason" style={{ display: "block", fontWeight: 700, marginBottom: "6px" }}>Reason for report</label>
+                <select id="report-reason" value={reportReason} onChange={(event) => setReportReason(event.target.value)} style={{ width: "100%", boxSizing: "border-box", padding: "11px", marginBottom: "12px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#fff" }}>
+                  <option>Scam or suspected fraud</option>
+                  <option>Fake or counterfeit product</option>
+                  <option>Misleading description or price</option>
+                  <option>Prohibited or illegal item</option>
+                  <option>Inappropriate content</option>
+                  <option>Duplicate listing</option>
+                  <option>Other concern</option>
+                </select>
+                <label htmlFor="report-details" style={{ display: "block", fontWeight: 700, marginBottom: "6px" }}>Additional details (optional)</label>
+                <textarea id="report-details" value={reportDetails} onChange={(event) => setReportDetails(event.target.value.slice(0, 500))} maxLength={500} rows={3} placeholder="Explain what concerns you..." style={{ width: "100%", boxSizing: "border-box", padding: "11px", border: "1px solid #cbd5e1", borderRadius: "8px", resize: "vertical" }} />
+                <div style={{ textAlign: "right", fontSize: "12px", color: "#64748b" }}>{reportDetails.length}/500</div>
+                <button type="submit" disabled={savingReport} style={{ width: "100%", padding: "12px", marginTop: "10px", background: savingReport ? "#94a3b8" : "#b91c1c", color: "#fff", border: "none", borderRadius: "8px", fontWeight: 700, cursor: savingReport ? "wait" : "pointer" }}>
+                  {savingReport ? "Submitting..." : "Submit report"}
+                </button>
+              </form>
+            )}
+            {reportMessage && <p role="status" style={{ marginBottom: 0, color: reportMessage.startsWith("Thank you") ? "#166534" : "#991b1b" }}>{reportMessage}</p>}
+          </div>
+        )}
+        {!currentUser && <p style={{ marginTop: "14px", color: "#64748b" }}>Sign in to report a suspicious listing.</p>}
       </div>
     </div>
   );
