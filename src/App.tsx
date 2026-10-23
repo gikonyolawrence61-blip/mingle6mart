@@ -297,6 +297,21 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
   }
 };
 
+  // Open a listing when someone follows a shared MingleMart product link.
+  useEffect(() => {
+    if (step !== "home" || itemsLoading || items.length === 0) return;
+    const sharedItemId = new URLSearchParams(window.location.search).get("item");
+    if (!sharedItemId) return;
+    const sharedItem = items.find((item) => item.id === sharedItemId);
+    if (sharedItem) {
+      setSelectedItem(sharedItem);
+      setStep("itemDetails");
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete("item");
+      window.history.replaceState({}, "", cleanUrl.toString());
+    }
+  }, [step, itemsLoading, items]);
+
   // OPEN PRODUCT DETAILS
   const handleViewItem = (item: Item) => {
     setSelectedItem(item);
