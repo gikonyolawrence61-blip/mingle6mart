@@ -361,15 +361,6 @@ colorScheme: "light",
             borderRadius: "12px",
           }}
         >
-          <p>
-            Created with ❤️ by{" "}
-            <strong>Lawrence Gikonyo</strong>
-          </p>
-
-          <p>
-            <strong>Founder &amp; Developer</strong>
-          </p>
-
           <p
             style={{
               fontSize: "12px",
