@@ -24,6 +24,18 @@ type PromotionRequest = {
   createdAt?: { toDate?: () => Date } | null;
 };
 
+type ListingReport = {
+  id: string;
+  listingId: string;
+  listingTitle: string;
+  reporterId: string;
+  reporterEmail: string;
+  reason: string;
+  details: string;
+  status: string;
+  createdAt?: { toDate?: () => Date } | null;
+};
+
 type AdminPromotionsProps = {
   onBack: () => void;
 };
@@ -40,6 +52,9 @@ export default function AdminPromotions({ onBack }: AdminPromotionsProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState("");
+  const [reports, setReports] = useState<ListingReport[]>([]);
+  const [reportError, setReportError] = useState("");
+  const [reportBusyId, setReportBusyId] = useState("");
 
   const isAdmin = auth.currentUser?.uid === ADMIN_UID;
 
@@ -72,6 +87,49 @@ export default function AdminPromotions({ onBack }: AdminPromotionsProps) {
       setLoading(false);
     });
   }, [isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    const reportsQuery = query(collection(db, "reports"), orderBy("createdAt", "desc"));
+    return onSnapshot(reportsQuery, (snapshot) => {
+      setReports(snapshot.docs.map((entry) => {
+        const data = entry.data();
+        return {
+          id: entry.id,
+          listingId: String(data.listingId ?? ""),
+          listingTitle: String(data.listingTitle ?? "Untitled listing"),
+          reporterId: String(data.reporterId ?? ""),
+          reporterEmail: String(data.reporterEmail ?? ""),
+          reason: String(data.reason ?? "Other concern"),
+          details: String(data.details ?? ""),
+          status: String(data.status ?? "pending"),
+          createdAt: data.createdAt ?? null,
+        };
+      }));
+      setReportError("");
+    }, (err) => {
+      console.error("LOAD LISTING REPORTS ERROR:", err);
+      setReportError("Could not load reports. Firestore rules must allow the administrator to read reports.");
+    });
+  }, [isAdmin]);
+
+  const updateReportStatus = async (report: ListingReport, status: "reviewed" | "dismissed") => {
+    if (!isAdmin) return;
+    setReportBusyId(report.id);
+    setReportError("");
+    try {
+      await updateDoc(doc(db, "reports", report.id), {
+        status,
+        reviewedAt: serverTimestamp(),
+        reviewedBy: auth.currentUser?.uid ?? "",
+      });
+    } catch (err) {
+      console.error("UPDATE LISTING REPORT ERROR:", err);
+      setReportError("Could not update this report. Check Firestore security rules.");
+    } finally {
+      setReportBusyId("");
+    }
+  };
 
   const rejectRequest = async (request: PromotionRequest) => {
     if (!isAdmin || request.status !== "pending") return;
@@ -144,7 +202,36 @@ export default function AdminPromotions({ onBack }: AdminPromotionsProps) {
     <main style={pageStyle}>
       <button onClick={onBack} style={{ padding: "10px 14px", border: 0, borderRadius: 8, background: "#1565c0", color: "white", fontWeight: 700 }}>← Back to marketplace</button>
       <h1 style={{ marginBottom: 4 }}>🛡️ MingleMart Admin</h1>
-      <h2 style={{ marginTop: 18 }}>Promotion requests</h2>
+      <section style={{ marginTop: 28 }}>
+        <h2>🚩 Suspicious listing reports ({reports.filter((report) => report.status === "pending").length} pending)</h2>
+        <p style={{ color: "#475569" }}>Review reports carefully before taking action. Reporting alone does not automatically remove a listing.</p>
+        {reportError && <p role="alert" style={{ background: "#fee2e2", color: "#991b1b", padding: 12, borderRadius: 8 }}>{reportError}</p>}
+        {reports.length === 0 ? (
+          <div style={{ padding: 18, background: "white", borderRadius: 12 }}>No listing reports yet.</div>
+        ) : reports.map((report) => (
+          <article key={report.id} style={{ marginTop: 12, padding: 16, borderRadius: 12, background: "white", border: report.status === "pending" ? "1px solid #fca5a5" : "1px solid #e2e8f0", overflowWrap: "anywhere" }}>
+            <h3 style={{ margin: "0 0 8px" }}>{report.listingTitle}</h3>
+            <p style={{ margin: "5px 0" }}><strong>Reason:</strong> {report.reason}</p>
+            {report.details && <p style={{ margin: "5px 0" }}><strong>Details:</strong> {report.details}</p>}
+            <p style={{ margin: "5px 0" }}><strong>Reported by:</strong> {report.reporterEmail || report.reporterId}</p>
+            <p style={{ margin: "5px 0" }}><strong>Submitted:</strong> {formatDate(report.createdAt)}</p>
+            <p style={{ margin: "5px 0" }}><strong>Status:</strong> {report.status}</p>
+            {report.listingId && <p style={{ margin: "5px 0" }}><strong>Listing ID:</strong> {report.listingId}</p>}
+            {report.status === "pending" && (
+              <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
+                <button disabled={reportBusyId === report.id} onClick={() => void updateReportStatus(report, "reviewed")} style={{ padding: 12, border: 0, borderRadius: 8, background: "#087f5b", color: "white", fontWeight: 700 }}>
+                  {reportBusyId === report.id ? "Saving…" : "✓ Mark reviewed"}
+                </button>
+                <button disabled={reportBusyId === report.id} onClick={() => void updateReportStatus(report, "dismissed")} style={{ padding: 12, border: "1px solid #cbd5e1", borderRadius: 8, background: "#f8fafc", color: "#334155", fontWeight: 700 }}>
+                  Dismiss report
+                </button>
+              </div>
+            )}
+          </article>
+        ))}
+      </section>
+
+      <h2 style={{ marginTop: 28 }}>Promotion requests</h2>
       <p style={{ color: "#475569" }}>Check M-Pesa independently before selecting “Confirm payment & activate”. A request alone is not proof of payment.</p>
       {error && <p role="alert" style={{ background: "#fee2e2", color: "#991b1b", padding: 12, borderRadius: 8 }}>{error}</p>}
       {loading ? <p>Loading promotion requests…</p> : requests.length === 0 ? (
