@@ -253,7 +253,7 @@ export default function App() {
   };
 
   const ADMIN_UID = "cxdj2L9iUSPw4Z6EPrarWGdYp5r2";
-  const isAdmin = auth.currentUser?.uid === ADMIN_UID;
+  const isAdmin = auth.currentUser?.emailVerified === true && auth.currentUser.uid === ADMIN_UID;
 
   // Admin can manually feature/unfeature a listing. Firestore rules must restrict this field to the admin.
   const handleToggleFeatured = async (item: Item) => {
@@ -417,10 +417,10 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
 
           <Home
             items={items}
-            currentUserId={auth.currentUser?.uid ?? ""}
+            currentUserId={auth.currentUser?.emailVerified ? auth.currentUser.uid : ""}
             userName={
-              auth.currentUser?.displayName?.trim() ||
-              auth.currentUser?.email?.split("@")[0] ||
+              (auth.currentUser?.emailVerified ? auth.currentUser.displayName?.trim() : "") ||
+              (auth.currentUser?.emailVerified ? auth.currentUser.email?.split("@")[0] : "") ||
               ""
             }
             onSignOut={handleSignOut}
