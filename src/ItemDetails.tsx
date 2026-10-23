@@ -192,8 +192,8 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
         <p><strong>Category:</strong> {item.category}</p>
         <p><strong>📍 Location:</strong> {item.location}</p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 14px", margin: "12px 0", color: "#475569" }}>
-          <span>👁️ {Number((item as Item & { totalViews?: number }).totalViews ?? 0)} total views</span>
-          <span>👥 {Number((item as Item & { uniqueVisitors?: number }).uniqueVisitors ?? 0)} unique visitors</span>
+          <span>👁️ {liveTotalViews} total views</span>
+          <span>👥 {liveUniqueVisitors} unique visitors</span>
         </div>
         <p><strong>Description:</strong></p>
         <p>{item.description || "No description provided."}</p>
