@@ -637,17 +637,7 @@ export default function Home({
             textAlign: "center",
             borderRadius: "12px",
           }}
-        >
-          <p>
-            Created with ❤️ by{" "}
-            <strong>Lawrence Gikonyo</strong>
-          </p>
-
-          <p>
-            <strong>Founder &amp; Developer</strong>
-          </p>
-
-          <div style={{ margin: "18px auto", padding: "15px", maxWidth: "420px", background: "#17344f", border: "1px solid #36536d", borderRadius: "10px", textAlign: "left" }}>
+        ><div style={{ margin: "18px auto", padding: "15px", maxWidth: "420px", background: "#17344f", border: "1px solid #36536d", borderRadius: "10px", textAlign: "left" }}>
             <h3 style={{ margin: "0 0 12px", textAlign: "center" }}>📞 Contact MingleMart</h3>
             <p style={{ margin: "10px 0" }}>
               💬 WhatsApp:{" "}
