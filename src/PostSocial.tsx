@@ -107,8 +107,8 @@ export default function PostSocial({ itemId }: PostSocialProps) {
     event.preventDefault();
     event.stopPropagation();
     const text = commentText.trim();
-    if (!user) {
-      setError("Please log in to comment.");
+    if (!user?.emailVerified) {
+      setError("Please sign in and verify your email before commenting.");
       return;
     }
     if (!itemId) {
@@ -223,11 +223,12 @@ export default function PostSocial({ itemId }: PostSocialProps) {
               onClick={(event) => event.stopPropagation()}
               onKeyDown={(event) => event.stopPropagation()}
               maxLength={1000}
-              placeholder={user ? "Write a comment..." : "Log in to comment"}
+              placeholder={user?.emailVerified ? "Write a comment..." : "Sign in and verify email to comment"}
               aria-label="Write a comment"
-              style={{ flex: 1, minWidth: 0, padding: "11px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px" }}
+              disabled={!user?.emailVerified || busy}
+              style={{ flex: 1, minWidth: 0, padding: "11px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", background: !user?.emailVerified ? "#f1f5f9" : "white" }}
             />
-            <button type="submit" disabled={busy || !commentText.trim()} style={{ padding: "10px 12px", border: "none", borderRadius: "8px", background: "#1565c0", color: "white", fontWeight: 700, cursor: busy ? "wait" : "pointer" }}>Post</button>
+            <button type="submit" disabled={!user?.emailVerified || busy || !commentText.trim()} style={{ padding: "10px 12px", border: "none", borderRadius: "8px", background: !user?.emailVerified ? "#94a3b8" : "#1565c0", color: "white", fontWeight: 700, cursor: busy ? "wait" : "pointer" }}>Post</button>
           </form>
         </div>
       )}
