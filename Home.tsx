@@ -34,6 +34,27 @@ export type Item = {
 };
 
 
+function getCreatedAtMillis(value: unknown): number {
+  if (!value) return 0;
+  if (value instanceof Date) return value.getTime();
+  if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+  }
+  if (typeof value === "object" && value !== null) {
+    const timestamp = value as { toDate?: () => Date; seconds?: number };
+    if (typeof timestamp.toDate === "function") {
+      try {
+        return timestamp.toDate().getTime() || 0;
+      } catch {
+        return 0;
+      }
+    }
+    if (typeof timestamp.seconds === "number") return timestamp.seconds * 1000;
+  }
+  return 0;
+}
+
 function formatTimeAgo(value: unknown, now: number): string {
   if (!value) return "Just now";
 
@@ -203,7 +224,7 @@ export default function Home({
         item.category.trim() === selectedCategory;
 
       return matchesSearch && matchesCategory;
-    });
+    }).sort((a, b) => getCreatedAtMillis(b.createdAt) - getCreatedAtMillis(a.createdAt));
   }, [items, searchText, selectedCategory]);
 
   return (
