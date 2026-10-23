@@ -178,6 +178,7 @@ export default function App() {
 
   // LOGIN
   const handleLogin = () => {
+    // The pending-item effect below returns members to the product they wanted.
     setStep("home");
   };
 
@@ -205,6 +206,7 @@ export default function App() {
 
   // CONFIRMATION
   const handleConfirmed = () => {
+    // After email verification, return to the requested product when applicable.
     setStep("home");
   };
 
@@ -315,30 +317,37 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
   }
 };
 
-  // Open a listing when someone follows a shared MingleMart product link.
+  // Resume a product visit after sign-in or email verification. sessionStorage
+  // keeps the intended product while the visitor moves between auth screens.
   useEffect(() => {
-    if (step !== "home" || itemsLoading || items.length === 0) return;
-    const sharedItemId = new URLSearchParams(window.location.search).get("item");
-    if (!sharedItemId) return;
-    // Shared listing links require a verified account before details are shown.
+    if (step !== "home" || itemsLoading) return;
+
+    const url = new URL(window.location.href);
+    const sharedItemId = url.searchParams.get("item");
+    const pendingItemId = sessionStorage.getItem("minglemart.pendingItemId");
+    const targetItemId = sharedItemId || pendingItemId;
+    if (!targetItemId) return;
+
     if (!auth.currentUser?.emailVerified) {
+      sessionStorage.setItem("minglemart.pendingItemId", targetItemId);
       setStep("login");
       return;
     }
-    const sharedItem = items.find((item) => item.id === sharedItemId);
-    if (sharedItem) {
-      setSelectedItem(sharedItem);
-      setStep("itemDetails");
-      const cleanUrl = new URL(window.location.href);
-      cleanUrl.searchParams.delete("item");
-      window.history.replaceState({}, "", cleanUrl.toString());
-    }
+
+    const targetItem = items.find((item) => item.id === targetItemId);
+    if (!targetItem) return;
+
+    setSelectedItem(targetItem);
+    sessionStorage.removeItem("minglemart.pendingItemId");
+    url.searchParams.delete("item");
+    window.history.replaceState({}, "", url.toString());
+    setStep("itemDetails");
   }, [step, itemsLoading, items]);
 
-  // OPEN PRODUCT DETAILS
+  // OPEN PRODUCT DETAILS. Keep the requested item while the visitor signs in/registers.
   const handleViewItem = (item: Item) => {
     if (!auth.currentUser?.emailVerified) {
-      alert("Please sign in or create an account to view product prices and details.");
+      if (item.id) sessionStorage.setItem("minglemart.pendingItemId", item.id);
       setStep("login");
       return;
     }
@@ -442,7 +451,10 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
             unreadMessages={unreadMessages}
             onDeleteItem={handleDeleteItem}
             onOpenAdmin={() => setStep("adminPromotions")}
-            onSignIn={() => setStep("login")}
+            onSignIn={(item) => {
+              if (item?.id) sessionStorage.setItem("minglemart.pendingItemId", item.id);
+              setStep("login");
+            }}
             onCreateAccount={() => setStep("registration")}
           />
         </div>
