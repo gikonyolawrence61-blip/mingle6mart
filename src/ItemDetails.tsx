@@ -101,7 +101,7 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
     });
   }, [item.id, item.sellerId]);
 
-  const currentUser = auth.currentUser;
+  const currentUser = auth.currentUser?.emailVerified ? auth.currentUser : null;
   const currentReview = reviews.find((review) => review.reviewerId === currentUser?.uid);
   const isSeller = Boolean(currentUser?.uid && item.sellerId && currentUser.uid === item.sellerId);
 
@@ -151,7 +151,7 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
   const submitReport = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const user = auth.currentUser;
-    if (!user) {
+    if (!user?.emailVerified) {
       setReportMessage("Please sign in before reporting a listing.");
       return;
     }
