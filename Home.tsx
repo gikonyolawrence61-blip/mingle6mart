@@ -108,6 +108,8 @@ type HomeProps = {
   isAdmin: boolean;
   onToggleFeatured: (item: Item) => void;
   onOpenAdmin: () => void;
+  onSignIn: () => void;
+  onCreateAccount: () => void;
 };
 
 export default function Home({
@@ -123,6 +125,8 @@ export default function Home({
   isAdmin,
   onToggleFeatured,
   onOpenAdmin,
+  onSignIn,
+  onCreateAccount,
 }: HomeProps) {
   const [searchText, setSearchText] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
@@ -277,7 +281,7 @@ export default function Home({
           <p className="mingle-brand__tagline">CONNECT <span>•</span> BUY <span>•</span> SELL <span>•</span> MEET</p>
         </header>
 
-        {/* Personalised greeting and account dropdown */}
+        {/* Public welcome for visitors; account menu for signed-in members. */}
         <div
           style={{
             display: "flex",
@@ -294,141 +298,166 @@ export default function Home({
         >
           <div>
             <h2 style={{ margin: "0 0 6px", color: "#10243a" }}>
-              👋 Welcome back{userName ? `, ${userName}` : ""}!
+              {currentUserId ? `👋 Welcome back${userName ? `, ${userName}` : ""}!` : "👋 Welcome to MingleMart!"}
             </h2>
             <p style={{ margin: 0, color: "#334155" }}>
-              Ready to discover something amazing today?
+              {currentUserId
+                ? "Ready to discover something amazing today?"
+                : "Browse products freely. Sign in or create an account to sell, message sellers, and join the community."}
             </p>
           </div>
-          <div style={{ position: "relative" }}>
-            <button
-              type="button"
-              onClick={() => setProfileOpen((open) => !open)}
-              aria-expanded={profileOpen}
-              aria-label="Open account menu"
-              style={{
-                padding: "10px 13px",
-                border: "1px solid #cbd5e1",
-                borderRadius: "999px",
-                background: "#ffffff",
-                color: "#10243a",
-                fontWeight: 700,
-                fontSize: "15px",
-                cursor: "pointer",
-                maxWidth: "100%",
-                overflowWrap: "anywhere",
-              }}
-            >
-              👤 {userName || "My Account"} ▼
-            </button>
-            {profileOpen && (
-              <div
-                role="menu"
+          {currentUserId ? (
+            <div style={{ position: "relative" }}>
+              <button
+                type="button"
+                onClick={() => setProfileOpen((open) => !open)}
+                aria-expanded={profileOpen}
+                aria-label="Open account menu"
                 style={{
-                  position: "absolute",
-                  right: 0,
-                  top: "calc(100% + 8px)",
-                  zIndex: 50,
-                  width: "220px",
-                  maxWidth: "calc(100vw - 56px)",
-                  padding: "8px",
+                  padding: "10px 13px",
+                  border: "1px solid #cbd5e1",
+                  borderRadius: "999px",
                   background: "#ffffff",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "12px",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.14)",
+                  color: "#10243a",
+                  fontWeight: 700,
+                  fontSize: "15px",
+                  cursor: "pointer",
+                  maxWidth: "100%",
+                  overflowWrap: "anywhere",
                 }}
               >
-                <p style={{ padding: "8px 10px", margin: 0, color: "#526174", overflowWrap: "anywhere" }}>
-                  Signed in as <strong style={{ color: "#10243a" }}>{userName || "MingleMart member"}</strong>
-                </p>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setProfileOpen(false);
-                    onOpenSellerInbox();
+                👤 {userName || "My Account"} ▼
+              </button>
+              {profileOpen && (
+                <div
+                  role="menu"
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "calc(100% + 8px)",
+                    zIndex: 50,
+                    width: "220px",
+                    maxWidth: "calc(100vw - 56px)",
+                    padding: "8px",
+                    background: "#ffffff",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "12px",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.14)",
                   }}
-                  style={profileMenuButtonStyle}
                 >
-                  💬 My Messages
-                </button>
-                {isAdmin && (
+                  <p style={{ padding: "8px 10px", margin: 0, color: "#526174", overflowWrap: "anywhere" }}>
+                    Signed in as <strong style={{ color: "#10243a" }}>{userName || "MingleMart member"}</strong>
+                  </p>
                   <button
                     type="button"
                     role="menuitem"
                     onClick={() => {
                       setProfileOpen(false);
-                      onOpenAdmin();
+                      onOpenSellerInbox();
                     }}
                     style={profileMenuButtonStyle}
                   >
-                    🛡️ Admin area
+                    💬 My Messages
                   </button>
-                )}
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setProfileOpen(false);
-                    onSignOut();
-                  }}
-                  style={{ ...profileMenuButtonStyle, color: "#b91c1c" }}
-                >
-                  🚪 Sign Out
-                </button>
-              </div>
-            )}
-          </div>
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        onOpenAdmin();
+                      }}
+                      style={profileMenuButtonStyle}
+                    >
+                      🛡️ Admin area
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setProfileOpen(false);
+                      onSignOut();
+                    }}
+                    style={{ ...profileMenuButtonStyle, color: "#b91c1c" }}
+                  >
+                    🚪 Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", width: "100%" }}>
+              <button
+                type="button"
+                onClick={onSignIn}
+                style={{ flex: "1 1 120px", padding: "12px 16px", background: "#1565c0", color: "white", border: "none", borderRadius: "9px", fontWeight: 700, cursor: "pointer" }}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={onCreateAccount}
+                style={{ flex: "1 1 120px", padding: "12px 16px", background: "#087f5b", color: "white", border: "none", borderRadius: "9px", fontWeight: 700, cursor: "pointer" }}
+              >
+                Create Account
+              </button>
+            </div>
+          )}
         </div>
 
-        <button
-          onClick={onOpenSellerInbox}
-          style={{
-            width: "100%",
-            padding: "12px",
-            marginBottom: "15px",
-            background: "#087f5b",
-            color: "white",
-            border: "none",
-            borderRadius: "10px",
-            fontSize: "16px",
-            fontWeight: "bold",
-            cursor: "pointer",
-          }}
-        >
-          <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-            💬 Messages
-            {unreadMessages > 0 && <span aria-label={`${unreadMessages} unread messages`} style={{ background: "#dc2626", color: "white", borderRadius: "999px", minWidth: "24px", padding: "3px 7px", fontSize: "13px", fontWeight: "bold" }}>{unreadMessages > 99 ? "99+" : unreadMessages}</span>}
-          </span>
-        </button>
+        {currentUserId && (
+          <>
+            <button
+              onClick={onOpenSellerInbox}
+              style={{
+                width: "100%",
+                padding: "12px",
+                marginBottom: "15px",
+                background: "#087f5b",
+                color: "white",
+                border: "none",
+                borderRadius: "10px",
+                fontSize: "16px",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                💬 Messages
+                {unreadMessages > 0 && <span aria-label={`${unreadMessages} unread messages`} style={{ background: "#dc2626", color: "white", borderRadius: "999px", minWidth: "24px", padding: "3px 7px", fontSize: "13px", fontWeight: "bold" }}>{unreadMessages > 99 ? "99+" : unreadMessages}</span>}
+              </span>
+            </button>
 
-        {isAdmin && (
-          <button
-            type="button"
-            onClick={onOpenAdmin}
-            style={{ width: "100%", padding: "12px", marginBottom: "15px", background: "#10243a", color: "white", border: "none", borderRadius: "10px", fontSize: "16px", fontWeight: "bold", cursor: "pointer" }}
-          >
-            🛡️ Admin area · Promotion requests
-          </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={onOpenAdmin}
+                style={{ width: "100%", padding: "12px", marginBottom: "15px", background: "#10243a", color: "white", border: "none", borderRadius: "10px", fontSize: "16px", fontWeight: "bold", cursor: "pointer" }}
+              >
+                🛡️ Admin area · Promotion requests
+              </button>
+            )}
+
+            <button
+              onClick={onPostItem}
+              style={{
+                width: "100%",
+                padding: "15px",
+                marginBottom: "20px",
+                background: "#1565c0",
+                color: "white",
+                border: "none",
+                borderRadius: "10px",
+                fontSize: "18px",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              ➕ Sell an Item
+            </button>
+          </>
         )}
-
-        <button
-          onClick={onPostItem}
-          style={{
-            width: "100%",
-            padding: "15px",
-            marginBottom: "20px",
-            background: "#1565c0",
-            color: "white",
-            border: "none",
-            borderRadius: "10px",
-            fontSize: "18px",
-            fontWeight: "bold",
-            cursor: "pointer",
-          }}
-        >
-          ➕ Sell an Item
-        </button>
 
         {/* SEARCH */}
         <label
