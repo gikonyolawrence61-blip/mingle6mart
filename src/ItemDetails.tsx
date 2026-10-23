@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { doc, collection, onSnapshot, orderBy, query, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, collection, onSnapshot, orderBy, query, serverTimestamp, setDoc, runTransaction } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import type { Item } from "../Home";
 
@@ -38,6 +38,51 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
   const [comment, setComment] = useState("");
   const [savingReview, setSavingReview] = useState(false);
   const [reviewMessage, setReviewMessage] = useState("");
+  // Count a view when the item details open. A persistent anonymous browser ID
+  // lets us estimate unique visitors without exposing personal information.
+  useEffect(() => {
+    if (!item.id) return;
+
+    const user = auth.currentUser;
+    // Do not count the seller viewing their own listing.
+    if (user?.uid && item.sellerId && user.uid === item.sellerId) return;
+
+    let visitorId = "";
+    try {
+      const storageKey = "minglemart-viewer-id";
+      visitorId = window.localStorage.getItem(storageKey) || "";
+      if (!visitorId) {
+        visitorId = typeof window.crypto?.randomUUID === "function"
+          ? window.crypto.randomUUID()
+          : `visitor-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        window.localStorage.setItem(storageKey, visitorId);
+      }
+    } catch {
+      // If browser storage is unavailable, use a temporary ID for this tab.
+      visitorId = `temporary-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    }
+
+    const itemRef = doc(db, "items", item.id);
+    const visitorRef = doc(db, "items", item.id, "viewers", visitorId);
+
+    runTransaction(db, async (transaction) => {
+      const itemSnapshot = await transaction.get(itemRef);
+      if (!itemSnapshot.exists()) return;
+      const visitorSnapshot = await transaction.get(visitorRef);
+      const data = itemSnapshot.data();
+      transaction.update(itemRef, {
+        totalViews: Math.max(0, Number(data.totalViews ?? 0)) + 1,
+        uniqueVisitors: Math.max(0, Number(data.uniqueVisitors ?? 0)) + (visitorSnapshot.exists() ? 0 : 1),
+        viewsUpdatedAt: serverTimestamp(),
+      });
+      if (!visitorSnapshot.exists()) {
+        transaction.set(visitorRef, { firstViewedAt: serverTimestamp() });
+      }
+    }).catch((error) => {
+      console.error("Could not record listing view. Firestore rules may need to allow view-counter updates:", error);
+    });
+  }, [item.id, item.sellerId]);
+
   const currentUser = auth.currentUser;
   const currentReview = reviews.find((review) => review.reviewerId === currentUser?.uid);
   const isSeller = Boolean(currentUser?.uid && item.sellerId && currentUser.uid === item.sellerId);
@@ -133,6 +178,10 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
         <h2 style={{ color: "#1565c0" }}>KSh {item.price}</h2>
         <p><strong>Category:</strong> {item.category}</p>
         <p><strong>📍 Location:</strong> {item.location}</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 14px", margin: "12px 0", color: "#475569" }}>
+          <span>👁️ {Number((item as Item & { totalViews?: number }).totalViews ?? 0)} total views</span>
+          <span>👥 {Number((item as Item & { uniqueVisitors?: number }).uniqueVisitors ?? 0)} unique visitors</span>
+        </div>
         <p><strong>Description:</strong></p>
         <p>{item.description || "No description provided."}</p>
 
