@@ -159,6 +159,24 @@ export default function Home({
 
   const activeFeaturedItem = featuredItems[featuredIndex];
 
+  // Share a specific listing through WhatsApp with a link that can reopen that item.
+  const shareListingOnWhatsApp = (item: Item) => {
+    const shareUrl = new URL(window.location.href);
+    if (item.id) shareUrl.searchParams.set("item", item.id);
+    const message = [
+      "🛍️ Check out this item on MingleMart Kenya!",
+      "",
+      `📦 ${item.title}`,
+      `💰 Price: KSh ${item.price}`,
+      `📍 Location: ${item.location}`,
+      item.category ? `🏷️ Category: ${item.category}` : "",
+      "",
+      "Connect • Buy • Sell • Meet",
+      shareUrl.toString(),
+    ].filter(Boolean).join("\n");
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+  };
+
   // Search and category filtering work together.
   const filteredItems = useMemo(() => {
     const search = searchText.trim().toLowerCase();
@@ -620,6 +638,33 @@ export default function Home({
               <p>📍 {item.location}</p>
 
               <p>{item.description}</p>
+
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  shareListingOnWhatsApp(item);
+                }}
+                aria-label={`Share ${item.title} on WhatsApp`}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  width: "100%",
+                  padding: "11px 14px",
+                  margin: "4px 0 12px",
+                  border: "none",
+                  borderRadius: "9px",
+                  background: "#25D366",
+                  color: "#ffffff",
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Share on WhatsApp
+              </button>
 
               {/* LIVE LIKES AND COMMENTS */}
               <PostSocial itemId={item.id} />
