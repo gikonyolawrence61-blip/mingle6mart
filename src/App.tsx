@@ -481,6 +481,41 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
       {step === "adminPromotions" && (
         <AdminPromotions onBack={() => setStep("home")} />
       )}
+
+      {/* PUBLIC CONTACT: visible even before sign-in */}
+      <footer
+        style={{
+          margin: "24px 12px",
+          padding: "22px 15px",
+          background: "#10243a",
+          color: "white",
+          textAlign: "center",
+          borderRadius: "12px",
+        }}
+      >
+        <h3 style={{ margin: "0 0 12px" }}>📞 Contact MingleMart</h3>
+        <p style={{ margin: "10px 0" }}>
+          💬 WhatsApp:{" "}
+          <a href="https://wa.me/254714802454" target="_blank" rel="noopener noreferrer" style={{ color: "#86efac", fontWeight: 700 }}>
+            Chat with us
+          </a>
+        </p>
+        <p style={{ margin: "10px 0" }}>
+          📱 Call:{" "}
+          <a href="tel:+254714802454" style={{ color: "#bfdbfe", fontWeight: 700 }}>
+            0714 802 454
+          </a>
+        </p>
+        <p style={{ margin: "10px 0", overflowWrap: "anywhere" }}>
+          ✉️ Email:{" "}
+          <a href="mailto:gikonyolawrence61@gmail.com" style={{ color: "#bfdbfe", fontWeight: 700 }}>
+            gikonyolawrence61@gmail.com
+          </a>
+        </p>
+        <p style={{ fontSize: "12px", color: "#cbd5e1", marginBottom: 0 }}>
+          © 2026 MingleMart. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
                                  }
