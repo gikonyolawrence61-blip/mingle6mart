@@ -7,7 +7,6 @@ import {
   deleteDoc,
   doc,
   onSnapshot,
-  orderBy,
   query,
   serverTimestamp,
   where,
@@ -72,13 +71,10 @@ export default function App() {
 
   // LOAD SAVED LISTINGS FROM FIRESTORE
   useEffect(() => {
-    const itemsQuery = query(
-      collection(db, "items"),
-      orderBy("createdAt", "desc")
-    );
-
+    // Read all listing documents without ordering. Firestore excludes older
+    // documents from ordered queries when they do not contain createdAt.
     const unsubscribe = onSnapshot(
-      itemsQuery,
+      collection(db, "items"),
       (snapshot) => {
         const savedItems: Item[] = snapshot.docs.map((document) => {
           const data = document.data();
