@@ -38,6 +38,19 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
   const [comment, setComment] = useState("");
   const [savingReview, setSavingReview] = useState(false);
   const [reviewMessage, setReviewMessage] = useState("");
+  const [liveTotalViews, setLiveTotalViews] = useState(Number((item as Item & { totalViews?: number }).totalViews ?? 0));
+  const [liveUniqueVisitors, setLiveUniqueVisitors] = useState(Number((item as Item & { uniqueVisitors?: number }).uniqueVisitors ?? 0));
+  // Keep the displayed view counts in sync with Firestore.
+  useEffect(() => {
+    if (!item.id) return;
+    return onSnapshot(doc(db, "items", item.id), (snapshot) => {
+      if (!snapshot.exists()) return;
+      const data = snapshot.data();
+      setLiveTotalViews(Math.max(0, Number(data.totalViews ?? 0)));
+      setLiveUniqueVisitors(Math.max(0, Number(data.uniqueVisitors ?? 0)));
+    }, (error) => console.error("Could not listen for listing view counts:", error));
+  }, [item.id]);
+
   // Count a view when the item details open. A persistent anonymous browser ID
   // lets us estimate unique visitors without exposing personal information.
   useEffect(() => {
