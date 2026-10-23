@@ -45,7 +45,7 @@ type Step =
   | "adminPromotions";
 
 export default function App() {
-  const [step, setStep] = useState<Step>("login");
+  const [step, setStep] = useState<Step>("home");
 
   const [registeredEmail, setRegisteredEmail] = useState("");
 
@@ -185,7 +185,7 @@ export default function App() {
     try {
       await signOut(auth);
       setUnreadMessages(0);
-      setStep("login");
+      setStep("home");
     } catch (error) {
       console.error("SIGN OUT ERROR:", error);
       alert("Could not sign out. Please try again.");
@@ -211,6 +211,10 @@ export default function App() {
   // OPEN POSTING FORM
   const handlePostItem = () => {
     setItemsError("");
+    if (!auth.currentUser?.emailVerified) {
+      setStep("login");
+      return;
+    }
     setStep("postItem");
   };
 
@@ -340,6 +344,10 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
 
   // OPEN CHAT WITH SELLER
   const handleChat = () => {
+    if (!auth.currentUser?.emailVerified) {
+      setStep("login");
+      return;
+    }
     if (selectedItem) {
       setChatItem(selectedItem);
       setActiveConversation(null);
@@ -424,6 +432,8 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
             unreadMessages={unreadMessages}
             onDeleteItem={handleDeleteItem}
             onOpenAdmin={() => setStep("adminPromotions")}
+            onSignIn={() => setStep("login")}
+            onCreateAccount={() => setStep("registration")}
           />
         </div>
       )}
