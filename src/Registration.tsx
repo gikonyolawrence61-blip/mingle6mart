@@ -181,7 +181,7 @@ export default function Registration({ onRegistered, onLogin }: RegistrationProp
                 <p style={{ lineHeight: 1.65, marginTop: 0, whiteSpace: "pre-wrap" }}>{body}</p>
               </div>
             ))}
-            <button type="button" onClick={() => { setLegalDocument(null); if (legalDocument === "terms") setAccepted(true); }} style={{ width: "100%", padding: "12px", border: 0, borderRadius: "8px", background: "#16803c", color: "#fff", fontWeight: 700, fontSize: "15px", cursor: "pointer" }}>
+            <button type="button" onClick={() => setLegalDocument(null)} style={{ width: "100%", padding: "12px", border: 0, borderRadius: "8px", background: "#16803c", color: "#fff", fontWeight: 700, fontSize: "15px", cursor: "pointer" }}>
               {legalDocument === "terms" ? "I have read the Terms" : "Close Privacy Policy"}
             </button>
             {legalDocument === "terms" && <p style={{ fontSize: "12px", color: "#64748b", textAlign: "center" }}>Reading this document does not replace checking the acceptance box.</p>}
