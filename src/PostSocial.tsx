@@ -81,7 +81,7 @@ export default function PostSocial({ itemId }: PostSocialProps) {
 
   const toggleLike = async (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    if (!user) {
+    if (!user?.emailVerified) {
       setError("Please log in to like a post.");
       return;
     }
