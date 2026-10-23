@@ -320,6 +320,11 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
     if (step !== "home" || itemsLoading || items.length === 0) return;
     const sharedItemId = new URLSearchParams(window.location.search).get("item");
     if (!sharedItemId) return;
+    // Shared listing links require a verified account before details are shown.
+    if (!auth.currentUser?.emailVerified) {
+      setStep("login");
+      return;
+    }
     const sharedItem = items.find((item) => item.id === sharedItemId);
     if (sharedItem) {
       setSelectedItem(sharedItem);
@@ -332,6 +337,11 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
 
   // OPEN PRODUCT DETAILS
   const handleViewItem = (item: Item) => {
+    if (!auth.currentUser?.emailVerified) {
+      alert("Please sign in or create an account to view product prices and details.");
+      setStep("login");
+      return;
+    }
     setSelectedItem(item);
     setStep("itemDetails");
   };
@@ -447,7 +457,7 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
       )}
 
       {/* ITEM DETAILS */}
-      {step === "itemDetails" && selectedItem && (
+      {step === "itemDetails" && selectedItem && auth.currentUser?.emailVerified && (
         <ItemDetails
           item={selectedItem}
           onBack={handleBack}
