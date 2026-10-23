@@ -25,6 +25,8 @@ export type Item = {
   location: string;
   description: string;
   image?: string;
+  totalViews?: number;
+  uniqueVisitors?: number;
   createdAt?: unknown;
   isFeatured?: boolean;
   promotionStatus?: string;
