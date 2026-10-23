@@ -386,7 +386,7 @@ export default function Home({
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", width: "100%" }}>
               <button
                 type="button"
-                onClick={onSignIn}
+                onClick={() => onSignIn()}
                 style={{ flex: "1 1 120px", padding: "12px 16px", background: "#1565c0", color: "white", border: "none", borderRadius: "9px", fontWeight: 700, cursor: "pointer" }}
               >
                 Sign In
