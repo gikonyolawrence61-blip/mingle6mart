@@ -139,6 +139,25 @@ export default function Home({
   };
 
   const featuredItems = useMemo(() => items.filter(isCurrentlyFeatured), [items, currentTime]);
+  const [featuredIndex, setFeaturedIndex] = useState(0);
+
+  // Rotate the featured showcase every four seconds. Reset safely when listings change.
+  useEffect(() => {
+    if (featuredItems.length < 2) {
+      setFeaturedIndex(0);
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setFeaturedIndex((index) => (index + 1) % featuredItems.length);
+    }, 4000);
+    return () => window.clearInterval(timer);
+  }, [featuredItems.length]);
+
+  useEffect(() => {
+    setFeaturedIndex((index) => featuredItems.length ? index % featuredItems.length : 0);
+  }, [featuredItems.length]);
+
+  const activeFeaturedItem = featuredItems[featuredIndex];
 
   // Search and category filtering work together.
   const filteredItems = useMemo(() => {
@@ -436,21 +455,56 @@ export default function Home({
           ))}
         </select>
 
-        {featuredItems.length > 0 && (
-          <section aria-label="Featured Listings" style={{ marginTop: "18px", marginBottom: "24px", padding: "16px", background: "#fff7df", border: "1px solid #f4c65e", borderRadius: "14px" }}>
+        {featuredItems.length > 0 && activeFeaturedItem && (
+          <section aria-label="Featured Listings" style={{ marginTop: "18px", marginBottom: "24px", padding: "16px", background: "#fff7df", border: "1px solid #f4c65e", borderRadius: "14px", overflow: "hidden" }}>
+            <style>{`
+              @keyframes mingleFeaturedZoom {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.06); }
+              }
+              @keyframes mingleFeaturedDetails {
+                0%, 12% { opacity: 0; transform: translateY(12px); }
+                22%, 78% { opacity: 1; transform: translateY(0); }
+                90%, 100% { opacity: 0; transform: translateY(-6px); }
+              }
+              @media (prefers-reduced-motion: reduce) {
+                .mingle-featured-image { animation: none !important; }
+                .mingle-featured-details { animation: none !important; opacity: 1 !important; transform: none !important; }
+              }
+            `}</style>
             <h2 style={{ marginTop: 0, color: "#92400e" }}>🔥 Featured Listings</h2>
-            <p style={{ marginTop: 0, color: "#78350f" }}>Products featured by MingleMart or currently on paid promotion.</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(145px, 1fr))", gap: "12px" }}>
-              {featuredItems.map((item) => (
-                <button key={item.id ?? `${item.title}-${item.location}`} type="button" onClick={() => onViewItem(item)} style={{ textAlign: "left", background: "white", border: "1px solid #f4c65e", borderRadius: "10px", padding: "10px", cursor: "pointer", color: "#172033" }}>
-                  {item.image && <img src={item.image} alt={item.title} loading="lazy" style={{ width: "100%", height: "110px", objectFit: "cover", borderRadius: "7px" }} />}
-                  <span style={{ display: "inline-block", marginTop: "6px", padding: "3px 6px", background: "#fef3c7", color: "#92400e", borderRadius: "5px", fontSize: "11px", fontWeight: 800 }}>🔥 FEATURED</span>
-                  <strong style={{ display: "block", marginTop: "5px" }}>{item.title}</strong>
-                  <strong style={{ display: "block", color: "#1565c0", marginTop: "4px" }}>KSh {item.price}</strong>
-                  <span style={{ display: "block", fontSize: "12px", color: "#526174", marginTop: "4px" }}>📍 {item.location}</span>
-                </button>
-              ))}
-            </div>
+            <p style={{ marginTop: 0, color: "#78350f" }}>Discover featured products on MingleMart.</p>
+            <button
+              key={activeFeaturedItem.id ?? `${activeFeaturedItem.title}-${featuredIndex}`}
+              type="button"
+              onClick={() => onViewItem(activeFeaturedItem)}
+              aria-label={`View featured listing: ${activeFeaturedItem.title}`}
+              style={{ position: "relative", display: "block", width: "100%", maxWidth: "620px", minHeight: "250px", margin: "0 auto", padding: 0, overflow: "hidden", textAlign: "left", background: "#172033", border: "1px solid #f4c65e", borderRadius: "14px", cursor: "pointer", color: "white", boxShadow: "0 8px 22px rgba(120, 53, 15, 0.18)" }}
+            >
+              {activeFeaturedItem.image ? (
+                <img className="mingle-featured-image" src={activeFeaturedItem.image} alt={activeFeaturedItem.title} loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", minHeight: "250px", objectFit: "cover", animation: "mingleFeaturedZoom 3s ease-in-out infinite" }} />
+              ) : (
+                <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #1565c0, #0f766e)" }} />
+              )}
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.08) 15%, rgba(0,0,0,0.82) 100%)" }} />
+              <div className="mingle-featured-details" style={{ position: "relative", zIndex: 1, display: "flex", minHeight: "250px", boxSizing: "border-box", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-start", padding: "20px", animation: "mingleFeaturedDetails 4s ease-in-out infinite" }}>
+                <span style={{ display: "inline-block", marginBottom: "8px", padding: "5px 8px", background: "#fef3c7", color: "#92400e", borderRadius: "6px", fontSize: "12px", fontWeight: 800 }}>🔥 FEATURED</span>
+                <strong style={{ display: "block", fontSize: "clamp(20px, 5vw, 28px)", lineHeight: 1.2, textShadow: "0 2px 5px rgba(0,0,0,0.65)" }}>{activeFeaturedItem.title}</strong>
+                <strong style={{ display: "block", color: "#fde68a", fontSize: "22px", marginTop: "8px", textShadow: "0 2px 5px rgba(0,0,0,0.65)" }}>KSh {activeFeaturedItem.price}</strong>
+                <span style={{ display: "block", fontSize: "14px", marginTop: "6px", textShadow: "0 2px 5px rgba(0,0,0,0.65)" }}>📍 {activeFeaturedItem.location}</span>
+                <span style={{ display: "block", fontSize: "12px", marginTop: "10px", opacity: 0.9 }}>Tap to view listing</span>
+              </div>
+            </button>
+            {featuredItems.length > 1 && (
+              <div aria-label="Featured listing navigation" style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", marginTop: "12px" }}>
+                {featuredItems.map((item, index) => (
+                  <button key={item.id ?? `${item.title}-${index}`} type="button" onClick={() => setFeaturedIndex(index)} aria-label={`Show featured listing ${index + 1}`} aria-pressed={index === featuredIndex} style={{ width: index === featuredIndex ? "24px" : "9px", height: "9px", padding: 0, border: "none", borderRadius: "999px", background: index === featuredIndex ? "#92400e" : "#d6b979", cursor: "pointer", transition: "all 180ms ease" }} />
+                ))}
+              </div>
+            )}
+            <p aria-live="polite" style={{ textAlign: "center", margin: "8px 0 0", color: "#78350f", fontSize: "12px" }}>
+              {featuredIndex + 1} of {featuredItems.length} featured listings · changes every 4 seconds
+            </p>
           </section>
         )}
 
