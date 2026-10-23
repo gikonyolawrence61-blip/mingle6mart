@@ -88,6 +88,8 @@ export default function App() {
             location: String(data.location ?? ""),
             description: String(data.description ?? ""),
             image: String(data.image ?? ""),
+            totalViews: Math.max(0, Number(data.totalViews ?? 0)),
+            uniqueVisitors: Math.max(0, Number(data.uniqueVisitors ?? 0)),
             createdAt: data.createdAt ?? null,
             isFeatured: data.isFeatured === true,
             promotionStatus: String(data.promotionStatus ?? ""),
