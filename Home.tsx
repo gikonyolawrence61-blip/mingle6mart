@@ -108,7 +108,7 @@ type HomeProps = {
   isAdmin: boolean;
   onToggleFeatured: (item: Item) => void;
   onOpenAdmin: () => void;
-  onSignIn: () => void;
+  onSignIn: (item?: Item) => void;
   onCreateAccount: () => void;
 };
 
@@ -700,7 +700,7 @@ export default function Home({
                 onClick={(event) => {
                   event.stopPropagation();
                   if (!currentUserId) {
-                    onSignIn();
+                    onSignIn(item);
                     return;
                   }
                   shareListingOnWhatsApp(item);
