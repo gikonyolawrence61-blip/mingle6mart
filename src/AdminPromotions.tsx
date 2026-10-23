@@ -24,6 +24,15 @@ type PromotionRequest = {
   createdAt?: { toDate?: () => Date } | null;
 };
 
+type RegisteredUser = {
+  uid: string;
+  displayName: string;
+  email: string;
+  emailVerified: boolean;
+  createdAt?: { toDate?: () => Date } | null;
+  lastSeenAt?: { toDate?: () => Date } | null;
+};
+
 type ListingReport = {
   id: string;
   listingId: string;
@@ -55,6 +64,8 @@ export default function AdminPromotions({ onBack }: AdminPromotionsProps) {
   const [reports, setReports] = useState<ListingReport[]>([]);
   const [reportError, setReportError] = useState("");
   const [reportBusyId, setReportBusyId] = useState("");
+  const [registeredUsers, setRegisteredUsers] = useState<RegisteredUser[]>([]);
+  const [usersError, setUsersError] = useState("");
 
   const isAdmin = auth.currentUser?.uid === ADMIN_UID;
 
@@ -85,6 +96,28 @@ export default function AdminPromotions({ onBack }: AdminPromotionsProps) {
       console.error("LOAD PROMOTION REQUESTS ERROR:", err);
       setError("Could not load requests. Firestore rules must allow the administrator to read promotionRequests.");
       setLoading(false);
+    });
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    const usersQuery = query(collection(db, "users"), orderBy("createdAt", "desc"));
+    return onSnapshot(usersQuery, (snapshot) => {
+      setRegisteredUsers(snapshot.docs.map((entry) => {
+        const data = entry.data();
+        return {
+          uid: entry.id,
+          displayName: String(data.displayName ?? ""),
+          email: String(data.email ?? ""),
+          emailVerified: data.emailVerified === true,
+          createdAt: data.createdAt ?? null,
+          lastSeenAt: data.lastSeenAt ?? null,
+        };
+      }));
+      setUsersError("");
+    }, (err) => {
+      console.error("LOAD REGISTERED USERS ERROR:", err);
+      setUsersError("Could not load registered users. Firestore security rules must allow only the administrator to read the users directory.");
     });
   }, [isAdmin]);
 
@@ -202,6 +235,32 @@ export default function AdminPromotions({ onBack }: AdminPromotionsProps) {
     <main style={pageStyle}>
       <button onClick={onBack} style={{ padding: "10px 14px", border: 0, borderRadius: 8, background: "#1565c0", color: "white", fontWeight: 700 }}>← Back to marketplace</button>
       <h1 style={{ marginBottom: 4 }}>🛡️ MingleMart Admin</h1>
+      <section style={{ marginTop: 28 }}>
+        <h2>👥 Registered users ({registeredUsers.length})</h2>
+        <p style={{ color: "#475569" }}>Shows accounts that have signed in after this directory was added. Email addresses are visible only in this admin screen if Firestore rules enforce admin-only reads.</p>
+        {usersError && <p role="alert" style={{ background: "#fee2e2", color: "#991b1b", padding: 12, borderRadius: 8 }}>{usersError}</p>}
+        {registeredUsers.length === 0 ? (
+          <div style={{ padding: 18, background: "white", borderRadius: 12 }}>No user profiles found yet. Existing members will appear after they sign in again.</div>
+        ) : (
+          <>
+            <p style={{ color: "#64748b", fontSize: 13 }}>Verified: {registeredUsers.filter((user) => user.emailVerified).length} · Unverified: {registeredUsers.filter((user) => !user.emailVerified).length}</p>
+            {registeredUsers.map((user) => (
+              <article key={user.uid} style={{ marginTop: 10, padding: 14, borderRadius: 12, background: "white", border: "1px solid #e2e8f0", overflowWrap: "anywhere" }}>
+                <h3 style={{ margin: "0 0 6px" }}>{user.displayName || "Name not provided"}</h3>
+                <p style={{ margin: "4px 0" }}><strong>Email:</strong> {user.email || "Not available"}</p>
+                <p style={{ margin: "4px 0" }}><strong>Email status:</strong> {user.emailVerified ? "✓ Verified" : "Not verified"}</p>
+                <p style={{ margin: "4px 0" }}><strong>Registered:</strong> {formatDate(user.createdAt)}</p>
+                <p style={{ margin: "4px 0" }}><strong>Last signed in:</strong> {formatDate(user.lastSeenAt)}</p>
+                <details style={{ marginTop: 6 }}>
+                  <summary style={{ cursor: "pointer", color: "#475569" }}>Account ID</summary>
+                  <code style={{ overflowWrap: "anywhere" }}>{user.uid}</code>
+                </details>
+              </article>
+            ))}
+          </>
+        )}
+      </section>
+
       <section style={{ marginTop: 28 }}>
         <h2>🚩 Suspicious listing reports ({reports.filter((report) => report.status === "pending").length} pending)</h2>
         <p style={{ color: "#475569" }}>Review reports carefully before taking action. Reporting alone does not automatically remove a listing.</p>
