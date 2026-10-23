@@ -9,6 +9,8 @@ import {
   onSnapshot,
   query,
   serverTimestamp,
+  setDoc,
+  Timestamp,
   where,
   updateDoc,
 } from "firebase/firestore";
@@ -64,6 +66,20 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user?.emailVerified) {
         setStep((currentStep) => currentStep === "login" ? "home" : currentStep);
+        // Keep a basic profile for the admin's registered-user directory.
+        // Existing accounts are added the next time they sign in after this update.
+        void setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          displayName: user.displayName ?? "",
+          email: user.email ?? "",
+          emailVerified: user.emailVerified,
+          createdAt: Timestamp.fromDate(
+            user.metadata.creationTime ? new Date(user.metadata.creationTime) : new Date()
+          ),
+          lastSeenAt: serverTimestamp(),
+        }, { merge: true }).catch((error) => {
+          console.error("Could not update user profile:", error);
+        });
       }
     });
     return unsubscribe;
