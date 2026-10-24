@@ -91,7 +91,7 @@ export default function AdminPromotions({ onBack }: AdminPromotionsProps) {
           paymentStatus: String(data.paymentStatus ?? "not_paid"),
           createdAt: data.createdAt ?? null,
         };
-      }));
+      }).filter((request) => request.status !== "deactivated"));
       setError("");
       setLoading(false);
     }, (err) => {
@@ -255,6 +255,7 @@ export default function AdminPromotions({ onBack }: AdminPromotionsProps) {
       });
       try {
         await updateDoc(doc(db, "promotionRequests", request.id), {
+          status: "deactivated",
           promotionEndedAt: serverTimestamp(),
           promotionEndedBy: auth.currentUser?.uid ?? "",
         });
