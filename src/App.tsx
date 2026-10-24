@@ -539,12 +539,6 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
               0714 802 454
             </a>
           </p>
-          <p style={{ margin: "10px 0", overflowWrap: "anywhere" }}>
-            ✉️ Email:{" "}
-            <a href="mailto:gikonyolawrence61@gmail.com" style={{ color: "#bfdbfe", fontWeight: 700 }}>
-              gikonyolawrence61@gmail.com
-            </a>
-          </p>
           <p style={{ fontSize: "12px", color: "#cbd5e1", marginBottom: 0 }}>
             © 2026 MingleMart. All rights reserved.
           </p>
