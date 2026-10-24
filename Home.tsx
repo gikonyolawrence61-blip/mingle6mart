@@ -129,6 +129,8 @@ export default function Home({
   onCreateAccount,
 }: HomeProps) {
   const [searchText, setSearchText] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] =
     useState("All categories");
