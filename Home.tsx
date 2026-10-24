@@ -412,71 +412,60 @@ export default function Home({
         </nav>
         {currentUserId && <button type="button" onClick={onPostItem} style={{ width: "100%", padding: "12px 14px", marginBottom: "16px", background: "#087f5b", color: "white", border: "none", borderRadius: "10px", fontSize: "16px", fontWeight: 700, cursor: "pointer" }}>＋ Sell an Item</button>}
 
-        {/* SEARCH */}
-        <label
-          htmlFor="minglemart-search"
-          style={{
-            display: "block",
-            fontWeight: "bold",
-            marginBottom: "6px",
-          }}
-        >
-          Search products
-        </label>
-
-        <input
-          id="minglemart-search"
-          type="search"
-          value={searchText}
-          onChange={(event) => setSearchText(event.target.value)}
-          placeholder="🔍 Search title, location, price..."
-          style={{
-            width: "100%",
-            padding: "14px",
-            boxSizing: "border-box",
-            borderRadius: "10px",
-            border: "1px solid #ccc",
-            fontSize: "16px",
-            background: "white",
-            marginBottom: "15px",
-          }}
-        />
-
-        {/* CATEGORY FILTER */}
-        <label
-          htmlFor="minglemart-category"
-          style={{
-            display: "block",
-            fontWeight: "bold",
-            marginBottom: "6px",
-          }}
-        >
-          Filter by category
-        </label>
-
-        <select
-          id="minglemart-category"
-          value={selectedCategory}
-          onChange={(event) =>
-            setSelectedCategory(event.target.value)
-          }
-          style={{
-            width: "100%",
-            padding: "13px",
-            boxSizing: "border-box",
-            borderRadius: "10px",
-            border: "1px solid #ccc",
-            fontSize: "16px",
-            background: "white",
-            marginBottom: "18px",
-          }}
-        >
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
+        {/* Compact icon search and category controls */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "8px 0 16px" }}>
+          <button
+            type="button"
+            aria-label="Search products"
+            title="Search products"
+            onClick={() => setSearchOpen((open) => !open)}
+            aria-expanded={searchOpen}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "7px", minHeight: "44px", padding: "9px 14px", border: searchOpen || searchText ? "1px solid #1565c0" : "1px solid #dbe3ee", borderRadius: "12px", background: "#fff", color: "#1565c0", fontSize: "20px", cursor: "pointer", boxShadow: "0 2px 6px rgba(15,23,42,0.06)" }}
+          >
+            🔍 <span style={{ fontSize: "13px", fontWeight: 700 }}>Search</span>
+          </button>
+          <button
+            type="button"
+            aria-label="Filter by category"
+            title="Filter by category"
+            onClick={() => setCategoryOpen((open) => !open)}
+            aria-expanded={categoryOpen}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "7px", minHeight: "44px", padding: "9px 14px", border: categoryOpen || selectedCategory !== "All categories" ? "1px solid #087f5b" : "1px solid #dbe3ee", borderRadius: "12px", background: "#fff", color: "#087f5b", fontSize: "20px", cursor: "pointer", boxShadow: "0 2px 6px rgba(15,23,42,0.06)" }}
+          >
+            ☷ <span style={{ fontSize: "13px", fontWeight: 700 }}>Category</span>
+            {selectedCategory !== "All categories" && <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#16a34a" }} />}
+          </button>
+          <span style={{ marginLeft: "auto", color: "#64748b", fontSize: "12px", whiteSpace: "nowrap" }}>{filteredItems.length} items</span>
+        </div>
+        {searchOpen && (
+          <div style={{ marginBottom: "12px" }}>
+            <label htmlFor="minglemart-search" style={{ display: "block", fontWeight: 700, fontSize: "13px", marginBottom: "5px" }}>Search products</label>
+            <input
+              id="minglemart-search"
+              type="search"
+              autoFocus
+              value={searchText}
+              onChange={(event) => setSearchText(event.target.value)}
+              placeholder="Search title, location, price..."
+              style={{ width: "100%", padding: "12px", boxSizing: "border-box", borderRadius: "10px", border: "1px solid #cbd5e1", fontSize: "16px", background: "white" }}
+            />
+          </div>
+        )}
+        {categoryOpen && (
+          <div style={{ marginBottom: "16px" }}>
+            <label htmlFor="minglemart-category" style={{ display: "block", fontWeight: 700, fontSize: "13px", marginBottom: "5px" }}>Filter by category</label>
+            <select
+              id="minglemart-category"
+              value={selectedCategory}
+              onChange={(event) => setSelectedCategory(event.target.value)}
+              style={{ width: "100%", padding: "12px", boxSizing: "border-box", borderRadius: "10px", border: "1px solid #cbd5e1", fontSize: "16px", background: "white" }}
+            >
+              {categories.map((category) => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {featuredItems.length > 0 && activeFeaturedItem && (
           <section aria-label="Featured Listings" style={{ marginTop: "18px", marginBottom: "24px", padding: "16px", background: "#fff7df", border: "1px solid #f4c65e", borderRadius: "14px", overflow: "hidden" }}>
