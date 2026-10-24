@@ -216,6 +216,32 @@ export default function AdminPromotions({ onBack }: AdminPromotionsProps) {
     }
   };
 
+  const removePromotion = async (request: PromotionRequest) => {
+    if (!isAdmin || !request.itemId) return;
+    if (!window.confirm(`Remove the promotion/featured status from "${request.itemTitle}"?`)) return;
+    setBusyId(request.id);
+    setError("");
+    try {
+      const batch = writeBatch(db);
+      batch.update(doc(db, "items", request.itemId), {
+        isFeatured: false,
+        promotionStatus: "expired",
+        featuredUntil: null,
+        featuredUpdatedAt: serverTimestamp(),
+      });
+      batch.update(doc(db, "promotionRequests", request.id), {
+        promotionEndedAt: serverTimestamp(),
+        promotionEndedBy: auth.currentUser?.uid ?? "",
+      });
+      await batch.commit();
+    } catch (err) {
+      console.error("REMOVE PROMOTION ERROR:", err);
+      setError("Could not remove this promotion. Check that the listing exists and Firestore rules allow the administrator to update it.");
+    } finally {
+      setBusyId("");
+    }
+  };
+
   const pageStyle: React.CSSProperties = {
     maxWidth: 900, margin: "0 auto", padding: 18, minHeight: "100vh",
     background: "#f4f7fb", boxSizing: "border-box", color: "#10243a",
@@ -312,7 +338,21 @@ export default function AdminPromotions({ onBack }: AdminPromotionsProps) {
                 Reject request
               </button>
             </div>
-          ) : <p style={{ fontWeight: 700, color: request.status === "approved" ? "#087f5b" : "#b91c1c" }}>Reviewed: {request.status}</p>}
+          ) : (
+            <div>
+              <p style={{ fontWeight: 700, color: request.status === "approved" ? "#087f5b" : "#b91c1c" }}>Reviewed: {request.status}</p>
+              {request.status === "approved" && (
+                <button
+                  type="button"
+                  disabled={busyId === request.id}
+                  onClick={() => void removePromotion(request)}
+                  style={{ width: "100%", marginTop: 8, padding: 12, border: 0, borderRadius: 8, background: "#b91c1c", color: "white", fontWeight: 700, cursor: busyId === request.id ? "wait" : "pointer" }}
+                >
+                  {busyId === request.id ? "Removing…" : "✖ Remove promotion / featured status"}
+                </button>
+              )}
+            </div>
+          )}
         </article>
       ))}
       <p style={{ marginTop: 22, color: "#64748b", fontSize: 13 }}>M-Pesa automation is not connected. This page records your manual confirmation; it does not verify payments with Safaricom.</p>
