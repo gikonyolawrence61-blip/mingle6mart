@@ -257,20 +257,39 @@ export default function App() {
   const ADMIN_UID = "cxdj2L9iUSPw4Z6EPrarWGdYp5r2";
   const isAdmin = auth.currentUser?.emailVerified === true && auth.currentUser.uid === ADMIN_UID;
 
-  // Admin can manually feature/unfeature a listing. Firestore rules must restrict this field to the admin.
+  // Admin can feature a listing or remove its featured/paid-promotion status.
   const handleToggleFeatured = async (item: Item) => {
     if (!isAdmin || !item.id) {
-      alert("Only the MingleMart administrator can feature listings.");
+      alert("Only the MingleMart administrator can manage featured listings.");
       return;
     }
+    const expiryValue = item.featuredUntil as { toDate?: () => Date } | Date | string | number | null | undefined;
+    let expiryDate: Date | null = null;
+    if (expiryValue instanceof Date) expiryDate = expiryValue;
+    else if (typeof expiryValue === "string" || typeof expiryValue === "number") expiryDate = new Date(expiryValue);
+    else if (expiryValue && typeof expiryValue === "object" && typeof expiryValue.toDate === "function") {
+      try { expiryDate = expiryValue.toDate(); } catch { expiryDate = null; }
+    }
+    const paidPromotionActive = item.promotionStatus === "active" && !!expiryDate &&
+      !Number.isNaN(expiryDate.getTime()) && expiryDate.getTime() > Date.now();
+    const currentlyFeatured = item.isFeatured === true || paidPromotionActive;
+
     try {
-      await updateDoc(doc(db, "items", item.id), {
-        isFeatured: !item.isFeatured,
-        featuredUpdatedAt: serverTimestamp(),
-      });
+      await updateDoc(doc(db, "items", item.id), currentlyFeatured
+        ? {
+            isFeatured: false,
+            promotionStatus: "expired",
+            featuredUntil: null,
+            featuredUpdatedAt: serverTimestamp(),
+          }
+        : {
+            isFeatured: true,
+            featuredUpdatedAt: serverTimestamp(),
+          });
+      alert(currentlyFeatured ? "Promotion/featured status removed." : "Listing featured successfully.");
     } catch (error) {
       console.error("FEATURE LISTING ERROR:", error);
-      alert("Could not update this listing. Firestore security rules must allow only the admin to change isFeatured.");
+      alert("Could not update this listing. Check Firestore security rules allow the admin to update isFeatured, promotionStatus and featuredUntil.");
     }
   };
 
