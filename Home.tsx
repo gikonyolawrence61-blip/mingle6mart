@@ -402,58 +402,15 @@ export default function Home({
           )}
         </div>
 
-        {currentUserId && (
-          <>
-            <button
-              onClick={onOpenSellerInbox}
-              style={{
-                width: "100%",
-                padding: "12px",
-                marginBottom: "15px",
-                background: "#087f5b",
-                color: "white",
-                border: "none",
-                borderRadius: "10px",
-                fontSize: "16px",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
-            >
-              <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-                💬 Messages
-                {unreadMessages > 0 && <span aria-label={`${unreadMessages} unread messages`} style={{ background: "#dc2626", color: "white", borderRadius: "999px", minWidth: "24px", padding: "3px 7px", fontSize: "13px", fontWeight: "bold" }}>{unreadMessages > 99 ? "99+" : unreadMessages}</span>}
-              </span>
-            </button>
-
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={onOpenAdmin}
-                style={{ width: "100%", padding: "12px", marginBottom: "15px", background: "#10243a", color: "white", border: "none", borderRadius: "10px", fontSize: "16px", fontWeight: "bold", cursor: "pointer" }}
-              >
-                🛡️ Admin area · Promotion requests
-              </button>
-            )}
-
-            <button
-              onClick={onPostItem}
-              style={{
-                width: "100%",
-                padding: "15px",
-                marginBottom: "20px",
-                background: "#1565c0",
-                color: "white",
-                border: "none",
-                borderRadius: "10px",
-                fontSize: "18px",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
-            >
-              ➕ Sell an Item
-            </button>
-          </>
-        )}
+        {/* Compact Facebook-style navigation keeps the marketplace content near the top. */}
+        <nav aria-label="Main navigation" style={{ position: "sticky", top: 0, zIndex: 40, display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: "4px", margin: "0 0 16px", padding: "6px", background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "14px", boxShadow: "0 4px 14px rgba(15, 23, 42, 0.08)" }}>
+          <button type="button" onClick={() => { setProfileOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={{ border: "none", borderRadius: "10px", background: "#eff6ff", color: "#1565c0", padding: "9px 2px", fontWeight: 700, cursor: "pointer" }}><span style={{ display: "block", fontSize: "21px" }}>⌂</span><span style={{ fontSize: "12px" }}>Home</span></button>
+          <button type="button" onClick={() => { setProfileOpen(false); document.getElementById("minglemart-search")?.focus(); document.getElementById("minglemart-search")?.scrollIntoView({ behavior: "smooth", block: "center" }); }} style={{ border: "none", borderRadius: "10px", background: "#fff", color: "#334155", padding: "9px 2px", fontWeight: 700, cursor: "pointer" }}><span style={{ display: "block", fontSize: "21px" }}>▤</span><span style={{ fontSize: "12px" }}>Market</span></button>
+          <button type="button" onClick={() => currentUserId ? onOpenSellerInbox() : onSignIn()} style={{ position: "relative", border: "none", borderRadius: "10px", background: "#fff", color: "#334155", padding: "9px 2px", fontWeight: 700, cursor: "pointer" }}><span style={{ display: "block", fontSize: "21px" }}>☏</span><span style={{ fontSize: "12px" }}>Messages</span>{currentUserId && unreadMessages > 0 && <span style={{ position: "absolute", top: "2px", right: "8%", background: "#dc2626", color: "white", borderRadius: "999px", minWidth: "17px", padding: "2px 4px", fontSize: "10px" }}>{unreadMessages > 99 ? "99+" : unreadMessages}</span>}</button>
+          <button type="button" onClick={() => { if (!currentUserId) onSignIn(); else setProfileOpen(true); }} style={{ border: "none", borderRadius: "10px", background: "#fff", color: "#334155", padding: "9px 2px", fontWeight: 700, cursor: "pointer" }}><span style={{ display: "block", fontSize: "21px" }}>♧</span><span style={{ fontSize: "12px" }}>Account</span></button>
+          <button type="button" onClick={() => setProfileOpen((open) => !open)} aria-expanded={profileOpen} style={{ border: "none", borderRadius: "10px", background: profileOpen ? "#eff6ff" : "#fff", color: "#334155", padding: "9px 2px", fontWeight: 700, cursor: "pointer" }}><span style={{ display: "block", fontSize: "21px" }}>☰</span><span style={{ fontSize: "12px" }}>Menu</span></button>
+        </nav>
+        {currentUserId && <button type="button" onClick={onPostItem} style={{ width: "100%", padding: "12px 14px", marginBottom: "16px", background: "#087f5b", color: "white", border: "none", borderRadius: "10px", fontSize: "16px", fontWeight: 700, cursor: "pointer" }}>＋ Sell an Item</button>}
 
         {/* SEARCH */}
         <label
