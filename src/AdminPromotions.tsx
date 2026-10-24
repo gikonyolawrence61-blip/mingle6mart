@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import {
   collection,
   doc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
   Timestamp,
   updateDoc,
+  where,
   writeBatch,
 } from "firebase/firestore";
 import { auth, db } from "./firebase";
@@ -217,26 +219,54 @@ export default function AdminPromotions({ onBack }: AdminPromotionsProps) {
   };
 
   const removePromotion = async (request: PromotionRequest) => {
-    if (!isAdmin || !request.itemId) return;
+    if (!isAdmin) {
+      setError("Access denied: sign in with the verified administrator account.");
+      return;
+    }
     if (!window.confirm(`Remove the promotion/featured status from "${request.itemTitle}"?`)) return;
     setBusyId(request.id);
     setError("");
     try {
-      const batch = writeBatch(db);
-      batch.update(doc(db, "items", request.itemId), {
+      // Older promotion requests may not contain itemId. Recover the listing
+      // safely by matching both title and seller UID rather than silently doing nothing.
+      let itemId = request.itemId.trim();
+      if (!itemId) {
+        const matches = await getDocs(query(
+          collection(db, "items"),
+          where("title", "==", request.itemTitle),
+          where("sellerId", "==", request.sellerId)
+        ));
+        if (matches.size === 0) {
+          throw new Error("No listing matched this request's title and seller. The request may be missing its itemId.");
+        }
+        if (matches.size > 1) {
+          throw new Error("More than one listing matched this request. Please open the listing and use its own admin control.");
+        }
+        itemId = matches.docs[0].id;
+      }
+
+      // Update the listing first. Do not make removal depend on also updating
+      // the request document, which may be restricted by Firestore rules.
+      await updateDoc(doc(db, "items", itemId), {
         isFeatured: false,
         promotionStatus: "expired",
         featuredUntil: null,
         featuredUpdatedAt: serverTimestamp(),
       });
-      batch.update(doc(db, "promotionRequests", request.id), {
-        promotionEndedAt: serverTimestamp(),
-        promotionEndedBy: auth.currentUser?.uid ?? "",
-      });
-      await batch.commit();
+      try {
+        await updateDoc(doc(db, "promotionRequests", request.id), {
+          promotionEndedAt: serverTimestamp(),
+          promotionEndedBy: auth.currentUser?.uid ?? "",
+        });
+      } catch (requestError) {
+        // The listing is already unfeatured; log the secondary audit-write failure.
+        console.warn("Promotion removed from listing, but request audit fields could not be saved:", requestError);
+      }
+      alert("Promotion removed from the listing.");
     } catch (err) {
       console.error("REMOVE PROMOTION ERROR:", err);
-      setError("Could not remove this promotion. Check that the listing exists and Firestore rules allow the administrator to update it.");
+      const detail = err instanceof Error ? err.message : String(err);
+      setError("Could not remove promotion: " + detail + " If the error mentions permissions, Firestore rules must allow the administrator to update the item promotion fields.");
     } finally {
       setBusyId("");
     }
