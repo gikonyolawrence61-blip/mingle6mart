@@ -684,8 +684,8 @@ export default function Home({
               <PostSocial itemId={item.id} />
 
               {isAdmin && item.id && (
-                <button type="button" onClick={(event) => { event.stopPropagation(); onToggleFeatured(item); }} style={{ width: "100%", marginBottom: "8px", padding: "11px", background: item.isFeatured ? "#475569" : "#f59e0b", color: item.isFeatured ? "white" : "#422006", border: "none", borderRadius: "8px", fontWeight: 700, cursor: "pointer" }}>
-                  {item.isFeatured ? "⭐ Remove from Featured Listings" : "⭐ Feature Listing (Admin)"}
+                <button type="button" onClick={(event) => { event.stopPropagation(); onToggleFeatured(item); }} style={{ width: "100%", marginBottom: "8px", padding: "11px", background: isCurrentlyFeatured(item) ? "#475569" : "#f59e0b", color: isCurrentlyFeatured(item) ? "white" : "#422006", border: "none", borderRadius: "8px", fontWeight: 700, cursor: "pointer" }}>
+                  {isCurrentlyFeatured(item) ? "✖ Remove Promotion / Featured Status" : "⭐ Feature Listing (Admin)"}
                 </button>
               )}
 
