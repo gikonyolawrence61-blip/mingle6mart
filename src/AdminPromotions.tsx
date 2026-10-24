@@ -223,51 +223,45 @@ export default function AdminPromotions({ onBack }: AdminPromotionsProps) {
       setError("Access denied: sign in with the verified administrator account.");
       return;
     }
-    if (!window.confirm(`Remove the promotion/featured status from "${request.itemTitle}"?`)) return;
+    if (!window.confirm(`Remove the promotion/featured status from "${request.itemTitle}"? This will not delete the listing.`)) return;
     setBusyId(request.id);
     setError("");
     try {
-      // Older promotion requests may not contain itemId. Recover the listing
-      // safely by matching both title and seller UID rather than silently doing nothing.
-      let itemId = request.itemId.trim();
-      if (!itemId) {
-        const matches = await getDocs(query(
-          collection(db, "items"),
-          where("title", "==", request.itemTitle),
-          where("sellerId", "==", request.sellerId)
-        ));
-        if (matches.size === 0) {
-          throw new Error("No listing matched this request's title and seller. The request may be missing its itemId.");
-        }
-        if (matches.size > 1) {
-          throw new Error("More than one listing matched this request. Please open the listing and use its own admin control.");
-        }
-        itemId = matches.docs[0].id;
+      // Find listings by both title and seller as well as the saved itemId.
+      // Older/duplicate promotion requests can point at a stale or different
+      // listing ID, which otherwise leaves the visible listing featured.
+      const matches = await getDocs(query(
+        collection(db, "items"),
+        where("title", "==", request.itemTitle),
+        where("sellerId", "==", request.sellerId)
+      ));
+      const itemIds = new Set<string>();
+      if (request.itemId.trim()) itemIds.add(request.itemId.trim());
+      matches.docs.forEach((entry) => itemIds.add(entry.id));
+      if (itemIds.size === 0) {
+        throw new Error("No listing could be matched to this promotion request.");
       }
 
-      // Update the listing first. Do not make removal depend on also updating
-      // the request document, which may be restricted by Firestore rules.
-      await updateDoc(doc(db, "items", itemId), {
-        isFeatured: false,
-        promotionStatus: "expired",
-        featuredUntil: null,
-        featuredUpdatedAt: serverTimestamp(),
-      });
-      try {
-        await updateDoc(doc(db, "promotionRequests", request.id), {
-          status: "deactivated",
-          promotionEndedAt: serverTimestamp(),
-          promotionEndedBy: auth.currentUser?.uid ?? "",
+      const batch = writeBatch(db);
+      itemIds.forEach((itemId) => {
+        batch.update(doc(db, "items", itemId), {
+          isFeatured: false,
+          promotionStatus: "expired",
+          featuredUntil: null,
+          featuredUpdatedAt: serverTimestamp(),
         });
-      } catch (requestError) {
-        // The listing is already unfeatured; log the secondary audit-write failure.
-        console.warn("Promotion removed from listing, but request audit fields could not be saved:", requestError);
-      }
-      alert("Promotion removed from the listing.");
+      });
+      batch.update(doc(db, "promotionRequests", request.id), {
+        status: "deactivated",
+        promotionEndedAt: serverTimestamp(),
+        promotionEndedBy: auth.currentUser?.uid ?? "",
+      });
+      await batch.commit();
+      alert(`Promotion removed from ${itemIds.size} matching listing(s). The listings themselves were not deleted.`);
     } catch (err) {
       console.error("REMOVE PROMOTION ERROR:", err);
       const detail = err instanceof Error ? err.message : String(err);
-      setError("Could not remove promotion: " + detail + " If the error mentions permissions, Firestore rules must allow the administrator to update the item promotion fields.");
+      setError("Could not remove promotion: " + detail + " If the error mentions permissions, Firestore rules must allow the administrator to update the item promotion fields and promotion request.");
     } finally {
       setBusyId("");
     }
