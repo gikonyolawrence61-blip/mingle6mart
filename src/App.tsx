@@ -539,6 +539,12 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
               0714 802 454
             </a>
           </p>
+          <p style={{ margin: "10px 0" }}>
+            📱 Alternative number:{" "}
+            <a href="tel:+254140410035" style={{ color: "#bfdbfe", fontWeight: 700 }}>
+              0140 410 035
+            </a>
+          </p>
           <p style={{ fontSize: "12px", color: "#cbd5e1", marginBottom: 0 }}>
             © 2026 MingleMart. All rights reserved.
           </p>
