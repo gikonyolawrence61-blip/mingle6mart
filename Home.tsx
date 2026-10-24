@@ -574,7 +574,7 @@ export default function Home({
             </button>
           </div>
         ) : (
-          <div aria-label="All listings, swipe horizontally to browse" style={{ display: "flex", gap: "14px", overflowX: "auto", overflowY: "hidden", padding: "4px 2px 16px", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+          <div aria-label="All listings" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px", alignItems: "stretch", padding: "4px 0 16px", width: "100%", boxSizing: "border-box" }}>
           {filteredItems.map((item) => (
             <div
               key={
@@ -586,11 +586,9 @@ export default function Home({
                 background: "white",
                 padding: "12px",
                 marginTop: "10px",
-                flex: "0 0 78%",
-                maxWidth: "300px",
-                minWidth: "220px",
+                minWidth: 0,
+                width: "100%",
                 boxSizing: "border-box",
-                scrollSnapAlign: "start",
                 borderRadius: "12px",
                 cursor: "pointer",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
