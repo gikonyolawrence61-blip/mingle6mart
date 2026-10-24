@@ -34,7 +34,7 @@ const termsSections = [
   ["15. Buyer-Seller Disputes", "Members should first try to resolve transaction disputes directly and respectfully. MingleMart may review reports or take action on accounts and listings but does not automatically guarantee refunds, delivery, product quality, or settlement of private disputes. This does not prevent users from exercising legal rights or contacting appropriate authorities."],
   ["16. Changes to Terms", "MingleMart may update these terms as services, security needs, or legal obligations change. Material changes will be communicated appropriately and renewed consent will be requested where required by law. The effective version and date will be updated when changes take effect."],
   ["17. Applicable Law", "These terms are intended to operate under the laws of Kenya, subject to applicable consumer-protection, data-protection, electronic-commerce, and other legal requirements."],
-  ["18. Contact", "For questions or reports about these terms, contact gikonyolawrence61@gmail.com through MingleMart Kenya."]
+  ["18. Contact", "For questions or reports about these terms, use the official contact options provided on the MingleMart platform."]
 ];
 
 const privacySections = [
@@ -45,7 +45,7 @@ const privacySections = [
   ["Security and retention", "Reasonable steps are intended to protect account and marketplace information, but no online service can guarantee absolute security. Information may be retained for as long as reasonably necessary for the purposes described, legal obligations, dispute handling, and security."],
   ["Your choices and rights", "Subject to applicable law, you may request access to, correction of, or deletion of personal information, and may exercise other rights available under Kenyan data-protection law. Some information may need to be retained where the law permits or requires it."],
   ["Children", "MingleMart is intended for adult account holders unless use by a younger person is permitted by applicable law with appropriate parental or guardian involvement."],
-  ["Changes and contact", "This notice may be updated as MingleMart's services change. For privacy questions or requests, contact gikonyolawrence61@gmail.com. This notice must be kept consistent with the services and providers actually used by the live platform."]
+  ["Changes and contact", "This notice may be updated as MingleMart's services change. For privacy questions or requests, use the official contact options provided on the MingleMart platform. This notice must be kept consistent with the services and providers actually used by the live platform."]
 ];
 
 export default function Registration({ onRegistered, onLogin }: RegistrationProps) {
@@ -174,7 +174,7 @@ export default function Registration({ onRegistered, onLogin }: RegistrationProp
               <h2 id="legal-title" style={{ margin: 0, color: "#10243a", fontSize: "21px" }}>{legalDocument === "terms" ? "MingleMart Terms and Conditions" : "MingleMart Privacy Policy"}</h2>
               <button type="button" onClick={() => setLegalDocument(null)} aria-label="Close document" style={{ border: 0, borderRadius: "8px", padding: "8px 12px", background: "#e2e8f0", cursor: "pointer", fontWeight: 700 }}>Close ✕</button>
             </div>
-            <p style={{ color: "#64748b", fontSize: "13px" }}>MingleMart Kenya · Effective 23 October 2026 · Contact: gikonyolawrence61@gmail.com</p>
+            <p style={{ color: "#64748b", fontSize: "13px" }}>MingleMart Kenya · Effective 23 October 2026</p>
             {(legalDocument === "terms" ? termsSections : privacySections).map(([heading, body]) => (
               <div key={heading} style={{ margin: "18px 0" }}>
                 <h3 style={{ color: "#147a46", fontSize: "16px", marginBottom: "6px" }}>{heading}</h3>
