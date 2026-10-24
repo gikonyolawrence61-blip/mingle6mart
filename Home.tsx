@@ -157,14 +157,16 @@ export default function Home({
 
   // A listing is featured manually by the admin, or while a paid promotion is active.
   const isCurrentlyFeatured = (item: Item) => {
-    if (item.isFeatured) return true;
-    if (item.promotionStatus !== "active" || !item.featuredUntil) return false;
-    const expiry = item.featuredUntil as { toDate?: () => Date } | Date | string | number;
-    let expiryDate: Date | null = null;
-    if (expiry instanceof Date) expiryDate = expiry;
-    else if (typeof expiry === "string" || typeof expiry === "number") expiryDate = new Date(expiry);
-    else if (expiry && typeof expiry === "object" && typeof expiry.toDate === "function") expiryDate = expiry.toDate();
-    return !!expiryDate && !Number.isNaN(expiryDate.getTime()) && expiryDate.getTime() > Date.now();
+    // A paid promotion's expiry takes priority over the manual featured flag.
+    if (item.promotionStatus === "active" && item.featuredUntil) {
+      const expiry = item.featuredUntil as { toDate?: () => Date } | Date | string | number;
+      let expiryDate: Date | null = null;
+      if (expiry instanceof Date) expiryDate = expiry;
+      else if (typeof expiry === "string" || typeof expiry === "number") expiryDate = new Date(expiry);
+      else if (expiry && typeof expiry === "object" && typeof expiry.toDate === "function") expiryDate = expiry.toDate();
+      return !!expiryDate && !Number.isNaN(expiryDate.getTime()) && expiryDate.getTime() > Date.now();
+    }
+    return !!item.isFeatured;
   };
 
   const featuredItems = useMemo(() => items.filter(isCurrentlyFeatured), [items, currentTime]);
