@@ -298,7 +298,7 @@ export default function Home({
             minHeight: "210px",
             color: "#ffffff",
             backgroundColor: "#063b78",
-            backgroundImage: "linear-gradient(90deg, rgba(3, 39, 83, 0.98) 0%, rgba(3, 55, 111, 0.92) 43%, rgba(3, 55, 111, 0.18) 100%), url('https://images.unsplash.com/photo-1673470907547-1c0c6a996095?auto=format&fit=crop&w=1400&q=85')",
+            backgroundImage: "linear-gradient(90deg, rgba(3, 39, 83, 0.98) 0%, rgba(3, 55, 111, 0.92) 43%, rgba(3, 55, 111, 0.18) 100%), url('https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1400&q=85')",
             backgroundSize: "cover",
             backgroundPosition: "center right",
             boxShadow: "0 8px 24px rgba(3, 39, 83, 0.18)",
