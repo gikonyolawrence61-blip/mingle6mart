@@ -281,136 +281,70 @@ export default function Home({
           <p className="mingle-brand__tagline">CONNECT <span>•</span> BUY <span>•</span> SELL <span>•</span> MEET</p>
         </header>
 
-        {/* Public welcome for visitors; account menu for signed-in members. */}
-        <div
+        {/* MingleMart Kenya welcome banner */}
+        <section
+          aria-label="Welcome to MingleMart Kenya"
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: "12px",
+            gap: "18px",
             flexWrap: "wrap",
             margin: "16px 0 20px",
-            padding: "0",
-            borderRadius: "0",
+            padding: "clamp(20px, 4vw, 38px)",
+            borderRadius: "16px",
             position: "relative",
-            overflow: "visible",
-            minHeight: "0",
-            color: "inherit",
-            background: "transparent",
-            border: "none",
-            boxShadow: "none",
+            overflow: "hidden",
+            minHeight: "210px",
+            color: "#ffffff",
+            backgroundColor: "#063b78",
+            backgroundImage: "linear-gradient(90deg, rgba(3, 39, 83, 0.98) 0%, rgba(3, 55, 111, 0.92) 43%, rgba(3, 55, 111, 0.18) 100%), url('https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1400&q=85')",
+            backgroundSize: "cover",
+            backgroundPosition: "center right",
+            boxShadow: "0 8px 24px rgba(3, 39, 83, 0.18)",
+            boxSizing: "border-box",
           }}
         >
-          <div>
-            <h2 style={{ margin: "0 0 8px", color: "#10243a", fontSize: "clamp(22px, 3vw, 30px)", lineHeight: 1.12, maxWidth: "620px" }}>
-              {currentUserId ? `Welcome back${userName ? `, ${userName}` : ""}!` : "Welcome to MingleMart Kenya"}
+          <div style={{ position: "relative", zIndex: 1, flex: "1 1 280px", minWidth: 0 }}>
+            <h2 style={{ margin: "0 0 12px", color: "#ffffff", fontSize: "clamp(27px, 4.2vw, 42px)", lineHeight: 1.08, maxWidth: "560px" }}>
+              Welcome to <span style={{ whiteSpace: "nowrap" }}>MingleMart Kenya</span>
             </h2>
-            <p style={{ margin: "0 0 12px", color: "#334155", fontSize: "clamp(16px, 2.4vw, 23px)", fontWeight: 700 }}>
+            <p style={{ margin: "0 0 12px", color: "#ffffff", fontSize: "clamp(17px, 2.5vw, 25px)", fontWeight: 800 }}>
               Connect • Buy • Sell • Meet
             </p>
-            <p style={{ margin: 0, color: "#15803d", fontSize: "clamp(14px, 2vw, 18px)", fontStyle: "italic", fontWeight: 700 }}>
+            <p style={{ margin: 0, color: "#5cff73", fontSize: "clamp(15px, 2vw, 20px)", fontStyle: "italic", fontWeight: 800 }}>
               Great deals. Real people. Local &amp; beyond.
             </p>
           </div>
-          {currentUserId ? (
-            <div style={{ position: "relative" }}>
-              <button
-                type="button"
-                onClick={() => setProfileOpen((open) => !open)}
-                aria-expanded={profileOpen}
-                aria-label="Open account menu"
-                style={{
-                  padding: "10px 13px",
-                  border: "1px solid #cbd5e1",
-                  borderRadius: "999px",
-                  background: "#ffffff",
-                  color: "#10243a",
-                  fontWeight: 700,
-                  fontSize: "15px",
-                  cursor: "pointer",
-                  maxWidth: "100%",
-                  overflowWrap: "anywhere",
-                }}
-              >
-                👤 {userName || "My Account"} ▼
-              </button>
-              {profileOpen && (
-                <div
-                  role="menu"
-                  style={{
-                    position: "absolute",
-                    right: 0,
-                    top: "calc(100% + 8px)",
-                    zIndex: 50,
-                    width: "220px",
-                    maxWidth: "calc(100vw - 56px)",
-                    padding: "8px",
-                    background: "#ffffff",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "12px",
-                    boxShadow: "0 8px 24px rgba(0,0,0,0.14)",
-                  }}
+          <div style={{ position: "relative", zIndex: 2, flex: "0 1 auto", alignSelf: "flex-start" }}>
+            {currentUserId ? (
+              <div style={{ position: "relative" }}>
+                <button
+                  type="button"
+                  onClick={() => setProfileOpen((open) => !open)}
+                  aria-expanded={profileOpen}
+                  aria-label="Open account menu"
+                  style={{ padding: "10px 13px", border: "1px solid rgba(255,255,255,0.65)", borderRadius: "999px", background: "rgba(255,255,255,0.96)", color: "#10243a", fontWeight: 700, fontSize: "14px", cursor: "pointer", maxWidth: "100%", overflowWrap: "anywhere" }}
                 >
-                  <p style={{ padding: "8px 10px", margin: 0, color: "#526174", overflowWrap: "anywhere" }}>
-                    Signed in as <strong style={{ color: "#10243a" }}>{userName || "MingleMart member"}</strong>
-                  </p>
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      setProfileOpen(false);
-                      onOpenSellerInbox();
-                    }}
-                    style={profileMenuButtonStyle}
-                  >
-                    💬 My Messages
-                  </button>
-                  {isAdmin && (
-                    <button
-                      type="button"
-                      role="menuitem"
-                      onClick={() => {
-                        setProfileOpen(false);
-                        onOpenAdmin();
-                      }}
-                      style={profileMenuButtonStyle}
-                    >
-                      🛡️ Admin area
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      setProfileOpen(false);
-                      onSignOut();
-                    }}
-                    style={{ ...profileMenuButtonStyle, color: "#b91c1c" }}
-                  >
-                    🚪 Sign Out
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", width: "100%" }}>
-              <button
-                type="button"
-                onClick={() => onSignIn()}
-                style={{ flex: "1 1 120px", padding: "12px 16px", background: "#1565c0", color: "white", border: "none", borderRadius: "9px", fontWeight: 700, cursor: "pointer" }}
-              >
-                Sign In
-              </button>
-              <button
-                type="button"
-                onClick={onCreateAccount}
-                style={{ flex: "1 1 120px", padding: "12px 16px", background: "#087f5b", color: "white", border: "none", borderRadius: "9px", fontWeight: 700, cursor: "pointer" }}
-              >
-                Create Account
-              </button>
-            </div>
-          )}
-        </div>
+                  👤 {userName || "My Account"} ▼
+                </button>
+                {profileOpen && (
+                  <div role="menu" style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", zIndex: 50, width: "220px", maxWidth: "calc(100vw - 56px)", padding: "8px", background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", boxShadow: "0 8px 24px rgba(0,0,0,0.14)" }}>
+                    <p style={{ padding: "8px 10px", margin: 0, color: "#526174", overflowWrap: "anywhere" }}>Signed in as <strong style={{ color: "#10243a" }}>{userName || "MingleMart member"}</strong></p>
+                    <button type="button" role="menuitem" onClick={() => { setProfileOpen(false); onOpenSellerInbox(); }} style={profileMenuButtonStyle}>💬 My Messages</button>
+                    {isAdmin && <button type="button" role="menuitem" onClick={() => { setProfileOpen(false); onOpenAdmin(); }} style={profileMenuButtonStyle}>🛡️ Admin area</button>}
+                    <button type="button" role="menuitem" onClick={() => { setProfileOpen(false); onSignOut(); }} style={{ ...profileMenuButtonStyle, color: "#b91c1c" }}>🚪 Sign Out</button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                <button type="button" onClick={() => onSignIn()} style={{ padding: "11px 15px", background: "#ffffff", color: "#12447b", border: "none", borderRadius: "9px", fontWeight: 800, cursor: "pointer" }}>Sign In</button>
+                <button type="button" onClick={onCreateAccount} style={{ padding: "11px 15px", background: "#087f5b", color: "#ffffff", border: "none", borderRadius: "9px", fontWeight: 800, cursor: "pointer" }}>Create Account</button>
+              </div>
+            )}
+          </div>
+        </section>
 
         {/* Compact Facebook-style navigation keeps the marketplace content near the top. */}
         <nav aria-label="Main navigation" style={{ position: "sticky", top: 0, zIndex: 40, display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: "4px", margin: "0 0 16px", padding: "6px", background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "14px", boxShadow: "0 4px 14px rgba(15, 23, 42, 0.08)" }}>
