@@ -1,0 +1,22 @@
+{
+  "id": "/",
+  "name": "MingleMart Kenya",
+  "short_name": "MingleMart",
+  "description": "Connect • Buy • Sell • Meet. Discover products and connect with buyers and sellers in Kenya.",
+  "lang": "en-KE",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f8fafc",
+  "theme_color": "#087f5b",
+  "categories": ["shopping", "social"],
+  "icons": [
+    {
+      "src": "/minglemart-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
