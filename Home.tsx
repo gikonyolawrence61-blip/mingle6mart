@@ -268,11 +268,11 @@ export default function Home({
         </header>
 
         {currentUserId && (
-          <section aria-label="Welcome back" style={{ margin: "12px 0 16px", padding: "16px 18px", borderRadius: "14px", background: "linear-gradient(135deg, #e8f5e9 0%, #eff6ff 100%)", border: "1px solid #d5e8dc", color: "#123b2a" }}>
-            <h2 style={{ margin: "0 0 5px", fontSize: "20px", lineHeight: 1.3, fontWeight: 800 }}>
+          <section aria-label="Welcome back" style={{ margin: "12px 0 16px", padding: "18px", borderRadius: "14px", background: "#ffffff", border: "2px solid #087f5b", boxShadow: "0 4px 14px rgba(0,0,0,0.12)", color: "#123b2a", position: "relative", zIndex: 1 }}>
+            <h2 style={{ margin: "0 0 7px", fontSize: "22px", lineHeight: 1.35, fontWeight: 900, color: "#075e42", background: "#ffffff" }}>
               Welcome back{userName ? `, ${userName}` : ""}! 👋
             </h2>
-            <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.5 }}>
+            <p style={{ margin: 0, fontSize: "15px", lineHeight: 1.6, fontWeight: 600, color: "#263238", background: "#ffffff" }}>
               Ready to discover something amazing today? Buy, sell, connect and meet with MingleMart Kenya.
             </p>
           </section>
