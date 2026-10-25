@@ -267,6 +267,17 @@ export default function Home({
           <p className="mingle-brand__tagline">CONNECT <span>•</span> BUY <span>•</span> SELL <span>•</span> MEET</p>
         </header>
 
+        {currentUserId && (
+          <section aria-label="Welcome back" style={{ margin: "12px 0 16px", padding: "16px 18px", borderRadius: "14px", background: "linear-gradient(135deg, #e8f5e9 0%, #eff6ff 100%)", border: "1px solid #d5e8dc", color: "#123b2a" }}>
+            <h2 style={{ margin: "0 0 5px", fontSize: "20px", lineHeight: 1.3, fontWeight: 800 }}>
+              Welcome back{userName ? `, ${userName}` : ""}! 👋
+            </h2>
+            <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.5 }}>
+              Ready to discover something amazing today? Buy, sell, connect and meet with MingleMart Kenya.
+            </p>
+          </section>
+        )}
+
         {/* Compact Facebook-style navigation keeps the marketplace content near the top. */}
         <nav aria-label="Main navigation" style={{ position: "sticky", top: 0, zIndex: 40, display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: "4px", margin: "0 0 16px", padding: "6px", background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "14px", boxShadow: "0 4px 14px rgba(15, 23, 42, 0.08)" }}>
           <button type="button" onClick={() => { setProfileOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={{ border: "none", borderRadius: "10px", background: "#eff6ff", color: "#1565c0", padding: "9px 2px", fontWeight: 700, cursor: "pointer" }}><span style={{ display: "block", fontSize: "21px" }}>⌂</span><span style={{ fontSize: "12px" }}>Home</span></button>
