@@ -106,9 +106,13 @@ export default function Home({
   onOpenSellerInbox,
   unreadMessages,
   onDeleteItem,
+  userName,
+  onSignOut,
   isAdmin,
   onToggleFeatured,
+  onOpenAdmin,
   onSignIn,
+  onCreateAccount,
 }: HomeProps) {
   const [searchText, setSearchText] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -271,6 +275,26 @@ export default function Home({
           <button type="button" onClick={() => { if (!currentUserId) onSignIn(); else setProfileOpen(true); }} style={{ border: "none", borderRadius: "10px", background: "#fff", color: "#334155", padding: "9px 2px", fontWeight: 700, cursor: "pointer" }}><span style={{ display: "block", fontSize: "21px" }}>♧</span><span style={{ fontSize: "12px" }}>Account</span></button>
           <button type="button" onClick={() => setProfileOpen((open) => !open)} aria-expanded={profileOpen} style={{ border: "none", borderRadius: "10px", background: profileOpen ? "#eff6ff" : "#fff", color: "#334155", padding: "9px 2px", fontWeight: 700, cursor: "pointer" }}><span style={{ display: "block", fontSize: "21px" }}>☰</span><span style={{ fontSize: "12px" }}>Menu</span></button>
         </nav>
+        {profileOpen && (
+          <div role="menu" aria-label="MingleMart menu" style={{ position: "relative", zIndex: 50, margin: "-8px 0 16px", padding: "12px", background: "#ffffff", border: "1px solid #dbe3ee", borderRadius: "12px", boxShadow: "0 8px 24px rgba(15,23,42,0.12)" }}>
+            <div style={{ padding: "8px 10px 12px", borderBottom: "1px solid #e2e8f0", marginBottom: "8px", color: "#10243a", fontWeight: 700 }}>
+              {currentUserId ? (userName || "My Account") : "Welcome to MingleMart"}
+            </div>
+            {[
+              { label: "🛍️ Sell an Item", action: () => { setProfileOpen(false); currentUserId ? onPostItem() : onSignIn(); } },
+              { label: "💬 Messages", action: () => { setProfileOpen(false); currentUserId ? onOpenSellerInbox() : onSignIn(); } },
+              ...(isAdmin ? [{ label: "🛡️ Admin area · Promotion requests", action: () => { setProfileOpen(false); onOpenAdmin(); } }] : []),
+              ...(currentUserId ? [{ label: "↪ Sign out", action: () => { setProfileOpen(false); onSignOut(); } }] : [
+                { label: "🔐 Sign in", action: () => { setProfileOpen(false); onSignIn(); } },
+                { label: "✨ Create account", action: () => { setProfileOpen(false); onCreateAccount(); } },
+              ]),
+            ].map((entry) => (
+              <button key={entry.label} type="button" role="menuitem" onClick={entry.action} style={{ display: "block", width: "100%", textAlign: "left", padding: "12px 10px", margin: "3px 0", border: "none", borderRadius: "8px", background: "#ffffff", color: "#10243a", fontSize: "14px", cursor: "pointer" }}>
+                {entry.label}
+              </button>
+            ))}
+          </div>
+        )}
         {currentUserId && <button type="button" onClick={onPostItem} style={{ width: "100%", padding: "12px 14px", marginBottom: "16px", background: "#087f5b", color: "white", border: "none", borderRadius: "10px", fontSize: "16px", fontWeight: 700, cursor: "pointer" }}>＋ Sell an Item</button>}
 
         {/* Compact icon search and category controls */}
