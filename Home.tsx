@@ -290,25 +290,25 @@ export default function Home({
             gap: "12px",
             flexWrap: "wrap",
             margin: "16px 0 20px",
-            padding: "16px",
-            borderRadius: "14px",
+            padding: "0",
+            borderRadius: "0",
             position: "relative",
-            overflow: "hidden",
-            minHeight: "220px",
-            color: "#ffffff",
-            background: 'linear-gradient(90deg, rgba(5, 35, 79, 0.98) 0%, rgba(5, 35, 79, 0.88) 43%, rgba(5, 35, 79, 0.16) 100%), url("https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=85") center 42% / cover no-repeat',
-            border: "1px solid #cbdff5",
-            boxShadow: "0 8px 24px rgba(15, 55, 100, 0.12)",
+            overflow: "visible",
+            minHeight: "0",
+            color: "inherit",
+            background: "transparent",
+            border: "none",
+            boxShadow: "none",
           }}
         >
           <div>
-            <h2 style={{ margin: "0 0 8px", color: "#ffffff", fontSize: "clamp(26px, 4vw, 42px)", lineHeight: 1.12, maxWidth: "620px", textShadow: "0 2px 10px rgba(0,0,0,.18)" }}>
+            <h2 style={{ margin: "0 0 8px", color: "#10243a", fontSize: "clamp(22px, 3vw, 30px)", lineHeight: 1.12, maxWidth: "620px" }}>
               {currentUserId ? `Welcome back${userName ? `, ${userName}` : ""}!` : "Welcome to MingleMart Kenya"}
             </h2>
-            <p style={{ margin: "0 0 12px", color: "#ffffff", fontSize: "clamp(16px, 2.4vw, 23px)", fontWeight: 700 }}>
+            <p style={{ margin: "0 0 12px", color: "#334155", fontSize: "clamp(16px, 2.4vw, 23px)", fontWeight: 700 }}>
               Connect • Buy • Sell • Meet
             </p>
-            <p style={{ margin: 0, color: "#86efac", fontSize: "clamp(14px, 2vw, 18px)", fontStyle: "italic", fontWeight: 700 }}>
+            <p style={{ margin: 0, color: "#15803d", fontSize: "clamp(14px, 2vw, 18px)", fontStyle: "italic", fontWeight: 700 }}>
               Great deals. Real people. Local &amp; beyond.
             </p>
           </div>
