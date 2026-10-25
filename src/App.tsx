@@ -31,6 +31,7 @@ import ItemDetails from "./ItemDetails";
 import Chat from "./Chat";
 import SellerInbox from "./SellerInbox";
 import AdminPromotions from "./AdminPromotions";
+import PWAInstall from "./PWAInstall";
 
 type Step =
   | "login"
@@ -395,6 +396,7 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
 
   return (
     <div>
+      <PWAInstall />
       {/* LOGIN */}
       {step === "login" && (
         <Login
