@@ -1,0 +1,93 @@
+.mm-install-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px auto;
+  padding: 14px;
+  width: calc(100% - 24px);
+  max-width: 900px;
+  box-sizing: border-box;
+  border: 1px solid #bbf7d0;
+  border-radius: 16px;
+  background: linear-gradient(110deg, #f0fdf4 0%, #eff6ff 100%);
+  color: #10243a;
+  text-align: left;
+  box-shadow: 0 5px 18px rgba(16, 36, 58, .08);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.mm-install-icon {
+  display: grid;
+  flex: 0 0 46px;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border-radius: 13px;
+  background: #10243a;
+  color: #fff;
+  font-size: 25px;
+  font-weight: 900;
+  box-shadow: inset 0 -4px 0 #087f5b;
+}
+.mm-install-copy { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
+.mm-install-copy strong { font-size: 15px; line-height: 1.3; }
+.mm-install-copy span { color: #475569; font-size: 12px; line-height: 1.4; }
+.mm-install-action {
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 13px;
+  background: #087f5b;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.mm-install-action:focus-visible, .mm-install-close:focus-visible, .mm-install-guide button:focus-visible {
+  outline: 3px solid #f5b335;
+  outline-offset: 3px;
+}
+.mm-install-close {
+  align-self: flex-start;
+  border: 0;
+  padding: 0 2px;
+  background: transparent;
+  color: #475569;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.mm-install-guide {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 8px);
+  right: 0;
+  left: 0;
+  padding: 16px;
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  background: #fff;
+  color: #10243a;
+  box-shadow: 0 12px 32px rgba(16, 36, 58, .18);
+}
+.mm-install-guide strong { display: block; margin-bottom: 8px; }
+.mm-install-guide p { margin: 7px 0; color: #475569; font-size: 14px; line-height: 1.5; }
+.mm-install-guide button {
+  margin-top: 8px;
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 14px;
+  background: #10243a;
+  color: white;
+  font-weight: 700;
+}
+@media (max-width: 480px) {
+  .mm-install-card { gap: 9px; padding: 12px 10px; }
+  .mm-install-icon { flex-basis: 40px; width: 40px; height: 40px; }
+  .mm-install-copy strong { font-size: 13px; }
+  .mm-install-copy span { font-size: 11px; }
+  .mm-install-action { padding: 9px 10px; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mm-install-card, .mm-install-guide { scroll-behavior: auto; }
+}
