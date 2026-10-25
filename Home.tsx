@@ -1,20 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import type React from "react";
 import PostSocial from "./src/PostSocial";
 import PromotionRequest from "./src/PromotionRequest";
-
-const profileMenuButtonStyle: React.CSSProperties = {
-  display: "block",
-  width: "100%",
-  padding: "10px",
-  textAlign: "left",
-  border: "none",
-  borderRadius: "8px",
-  background: "#ffffff",
-  color: "#10243a",
-  fontSize: "14px",
-  cursor: "pointer",
-};
 
 export type Item = {
   id?: string;
@@ -120,13 +106,9 @@ export default function Home({
   onOpenSellerInbox,
   unreadMessages,
   onDeleteItem,
-  userName,
-  onSignOut,
   isAdmin,
   onToggleFeatured,
-  onOpenAdmin,
   onSignIn,
-  onCreateAccount,
 }: HomeProps) {
   const [searchText, setSearchText] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
