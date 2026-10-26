@@ -116,7 +116,6 @@ export default function App() {
           priceCurrency: "KES",
           availability: "https://schema.org/InStock",
           url: pageUrl,
-          itemCondition: "https://schema.org/UsedCondition"
         },
         areaServed: { "@type": "Country", name: "Kenya" }
       });
@@ -435,6 +434,9 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
   // RETURN HOME
   const handleBack = () => {
     setItemsError("");
+    const url = new URL(window.location.href);
+    url.searchParams.delete("item");
+    window.history.replaceState({}, "", url.toString());
     setStep("home");
   };
 
