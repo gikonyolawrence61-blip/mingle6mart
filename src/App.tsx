@@ -62,6 +62,69 @@ export default function App() {
 
   const [chatItem, setChatItem] = useState<Item | null>(null);
 
+  // Keep each open product's browser title, description and structured data relevant.
+  // Search engines can then associate a shared product URL with its listing details.
+  useEffect(() => {
+    const baseUrl = "https://minglemart-eb6da.web.app/";
+    const productIsOpen = step === "itemDetails" && selectedItem?.id;
+    const title = productIsOpen
+      ? `${selectedItem.title} for sale in Kenya | MingleMart`
+      : "MingleMart Kenya | Buy & Sell New and Second-Hand Items";
+    const description = productIsOpen
+      ? `${selectedItem.title} for KSh ${selectedItem.price}. ${selectedItem.category} in ${selectedItem.location}. ${selectedItem.description}`.replace(/\\s+/g, " ").slice(0, 300)
+      : "Discover affordable new and second-hand phones, electronics, furniture, household items, fashion and more on MingleMart Kenya. Buy and sell products and connect with buyers and sellers across Kenya.";
+    const pageUrl = productIsOpen
+      ? `${baseUrl}?item=${encodeURIComponent(selectedItem.id)}`
+      : baseUrl;
+
+    document.title = title;
+    const setMeta = (selector: string, attribute: "content" | "href", value: string) => {
+      let element = document.head.querySelector(selector) as HTMLMetaElement | HTMLLinkElement | null;
+      if (!element) {
+        element = document.createElement(selector.startsWith("link") ? "link" : "meta") as HTMLMetaElement | HTMLLinkElement;
+        if (selector.includes("description")) element.setAttribute("name", "description");
+        if (selector.includes("og:title")) element.setAttribute("property", "og:title");
+        if (selector.includes("og:description")) element.setAttribute("property", "og:description");
+        if (selector.includes("og:url")) element.setAttribute("property", "og:url");
+        if (selector.includes("canonical")) element.setAttribute("rel", "canonical");
+        document.head.appendChild(element);
+      }
+      element.setAttribute(attribute, value);
+    };
+    setMeta('meta[name="description"]', "content", description);
+    setMeta('meta[property="og:title"]', "content", title);
+    setMeta('meta[property="og:description"]', "content", description);
+    setMeta('meta[property="og:url"]', "content", pageUrl);
+    setMeta('link[rel="canonical"]', "href", pageUrl);
+
+    const schemaId = "minglemart-product-schema";
+    document.getElementById(schemaId)?.remove();
+    if (productIsOpen) {
+      const schema = document.createElement("script");
+      schema.id = schemaId;
+      schema.type = "application/ld+json";
+      schema.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: selectedItem.title,
+        description,
+        category: selectedItem.category,
+        image: selectedItem.image ? [selectedItem.image] : undefined,
+        offers: {
+          "@type": "Offer",
+          price: String(selectedItem.price).replace(/[^0-9.]/g, ""),
+          priceCurrency: "KES",
+          availability: "https://schema.org/InStock",
+          url: pageUrl,
+          itemCondition: "https://schema.org/UsedCondition"
+        },
+        areaServed: { "@type": "Country", name: "Kenya" }
+      });
+      document.head.appendChild(schema);
+    }
+    return () => { document.getElementById(schemaId)?.remove(); };
+  }, [step, selectedItem]);
+
   // Restore an already verified session after a page refresh.
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -348,30 +411,24 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
     const targetItemId = sharedItemId || pendingItemId;
     if (!targetItemId) return;
 
-    if (!auth.currentUser?.emailVerified) {
-      sessionStorage.setItem("minglemart.pendingItemId", targetItemId);
-      setStep("login");
-      return;
-    }
-
     const targetItem = items.find((item) => item.id === targetItemId);
     if (!targetItem) return;
 
+    // Product details are public so shoppers and search engines can view shared listings.
     setSelectedItem(targetItem);
     sessionStorage.removeItem("minglemart.pendingItemId");
-    url.searchParams.delete("item");
-    window.history.replaceState({}, "", url.toString());
     setStep("itemDetails");
   }, [step, itemsLoading, items]);
 
   // OPEN PRODUCT DETAILS. Keep the requested item while the visitor signs in/registers.
   const handleViewItem = (item: Item) => {
-    if (!auth.currentUser?.emailVerified) {
-      if (item.id) sessionStorage.setItem("minglemart.pendingItemId", item.id);
-      setStep("login");
-      return;
-    }
+    // Let anyone open product details; login is still required for interactions.
     setSelectedItem(item);
+    if (item.id) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("item", item.id);
+      window.history.pushState({}, "", url.toString());
+    }
     setStep("itemDetails");
   };
 
