@@ -66,15 +66,16 @@ export default function App() {
   // Search engines can then associate a shared product URL with its listing details.
   useEffect(() => {
     const baseUrl = "https://minglemart-eb6da.web.app/";
-    const productIsOpen = step === "itemDetails" && selectedItem?.id;
+    const product = step === "itemDetails" && selectedItem?.id ? selectedItem : null;
+    const productIsOpen = Boolean(product);
     const title = productIsOpen
-      ? `${selectedItem.title} for sale in Kenya | MingleMart`
+      ? `${product!.title} for sale in Kenya | MingleMart`
       : "MingleMart Kenya | Buy & Sell New and Second-Hand Items";
     const description = productIsOpen
-      ? `${selectedItem.title} for KSh ${selectedItem.price}. ${selectedItem.category} in ${selectedItem.location}. ${selectedItem.description}`.replace(/\\s+/g, " ").slice(0, 300)
+      ? `${selectedItem.title} for KSh ${product!.price}. ${product!.category} in ${product!.location}. ${product!.description}`.replace(/\\s+/g, " ").slice(0, 300)
       : "Discover affordable new and second-hand phones, electronics, furniture, household items, fashion and more on MingleMart Kenya. Buy and sell products and connect with buyers and sellers across Kenya.";
     const pageUrl = productIsOpen
-      ? `${baseUrl}?item=${encodeURIComponent(selectedItem.id)}`
+      ? `${baseUrl}?item=${encodeURIComponent(product!.id)}`
       : baseUrl;
 
     document.title = title;
@@ -109,7 +110,7 @@ export default function App() {
         name: selectedItem.title,
         description,
         category: selectedItem.category,
-        image: selectedItem.image ? [selectedItem.image] : undefined,
+        image: product!.image ? [selectedItem.image] : undefined,
         offers: {
           "@type": "Offer",
           price: String(selectedItem.price).replace(/[^0-9.]/g, ""),
