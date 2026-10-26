@@ -75,7 +75,7 @@ export default function App() {
       ? `${product!.title} for KSh ${product!.price}. ${product!.category} in ${product!.location}. ${product!.description}`.replace(/\s+/g, " ").slice(0, 300)
       : "Discover affordable new and second-hand phones, electronics, furniture, household items, fashion and more on MingleMart Kenya. Buy and sell products and connect with buyers and sellers across Kenya.";
     const pageUrl = productIsOpen
-      ? `${baseUrl}?item=${encodeURIComponent(product!.id)}`
+      ? `${baseUrl}?item=${encodeURIComponent(String(product!.id ?? ""))}`
       : baseUrl;
 
     document.title = title;
