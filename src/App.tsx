@@ -72,7 +72,7 @@ export default function App() {
       ? `${product!.title} for sale in Kenya | MingleMart`
       : "MingleMart Kenya | Buy & Sell New and Second-Hand Items";
     const description = productIsOpen
-      ? `${selectedItem.title} for KSh ${product!.price}. ${product!.category} in ${product!.location}. ${product!.description}`.replace(/\\s+/g, " ").slice(0, 300)
+      ? `${product!.title} for KSh ${product!.price}. ${product!.category} in ${product!.location}. ${product!.description}`.replace(/\s+/g, " ").slice(0, 300)
       : "Discover affordable new and second-hand phones, electronics, furniture, household items, fashion and more on MingleMart Kenya. Buy and sell products and connect with buyers and sellers across Kenya.";
     const pageUrl = productIsOpen
       ? `${baseUrl}?item=${encodeURIComponent(product!.id)}`
@@ -107,13 +107,13 @@ export default function App() {
       schema.textContent = JSON.stringify({
         "@context": "https://schema.org",
         "@type": "Product",
-        name: selectedItem.title,
+        name: product!.title,
         description,
-        category: selectedItem.category,
-        image: product!.image ? [selectedItem.image] : undefined,
+        category: product!.category,
+        image: product!.image ? [product!.image] : undefined,
         offers: {
           "@type": "Offer",
-          price: String(selectedItem.price).replace(/[^0-9.]/g, ""),
+          price: String(product!.price).replace(/[^0-9.]/g, ""),
           priceCurrency: "KES",
           availability: "https://schema.org/InStock",
           url: pageUrl,
