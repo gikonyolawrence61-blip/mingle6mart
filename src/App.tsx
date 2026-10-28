@@ -610,14 +610,8 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
           <h3 style={{ margin: "0 0 12px" }}>📞 Contact MingleMart</h3>
           <p style={{ margin: "10px 0" }}>
             💬 WhatsApp:{" "}
-            <a href="https://wa.me/254714802454" target="_blank" rel="noopener noreferrer" style={{ color: "#86efac", fontWeight: 700 }}>
+            <a href="https://wa.me/254140410035" target="_blank" rel="noopener noreferrer" style={{ color: "#86efac", fontWeight: 700 }}>
               Chat with us
-            </a>
-          </p>
-          <p style={{ margin: "10px 0" }}>
-            📱 Call:{" "}
-            <a href="tel:+254714802454" style={{ color: "#bfdbfe", fontWeight: 700 }}>
-              0714 802 454
             </a>
           </p>
           <p style={{ margin: "10px 0" }}>
