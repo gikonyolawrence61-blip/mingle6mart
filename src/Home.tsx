@@ -105,7 +105,9 @@ export default function Home({
           .mingle-tagline-track {
             display: flex;
             width: max-content;
-            animation: mingle-tagline-left-to-right 18s linear infinite;
+            animation: mingle-tagline-left-to-right 8s linear infinite !important;
+            animation-play-state: running !important;
+            transform: translate3d(-50%, 0, 0);
             will-change: transform;
           }
           .mingle-tagline-group {
@@ -113,11 +115,8 @@ export default function Home({
             flex: 0 0 auto;
           }
           @keyframes mingle-tagline-left-to-right {
-            from { transform: translateX(-50%); }
-            to { transform: translateX(0); }
-          }
-          @media (prefers-reduced-motion: reduce) {
-            .mingle-tagline-track { animation-duration: 30s; }
+            0% { transform: translate3d(-50%, 0, 0); }
+            100% { transform: translate3d(0, 0, 0); }
           }
           .mingle-tagline-group {
             display: inline-flex;
