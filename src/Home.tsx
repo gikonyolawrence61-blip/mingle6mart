@@ -102,9 +102,22 @@ export default function Home({
             border-radius: 12px;
             background: linear-gradient(90deg, #e8f5e9, #e3f2fd, #fff3e0, #f3e5f5);
           }
-          .mingle-tagline-marquee {
-            display: block;
-            width: 100%;
+          .mingle-tagline-track {
+            display: flex;
+            width: max-content;
+            animation: mingle-tagline-left-to-right 18s linear infinite;
+            will-change: transform;
+          }
+          .mingle-tagline-group {
+            display: inline-flex;
+            flex: 0 0 auto;
+          }
+          @keyframes mingle-tagline-left-to-right {
+            from { transform: translateX(-50%); }
+            to { transform: translateX(0); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .mingle-tagline-track { animation-duration: 30s; }
           }
           .mingle-tagline-group {
             display: inline-flex;
@@ -123,14 +136,16 @@ export default function Home({
           .mingle-tagline-group b { color: #94a3b8; }
         `}</style>
         <div className="mingle-tagline-window" aria-label="Connect, Buy, Sell, Meet">
-          <marquee className="mingle-tagline-marquee" direction="right" behavior="scroll" scrollAmount="5">
-            <span className="mingle-tagline-group">
-              <span>● CONNECT</span><b>•</b>
-              <span>🛒 BUY</span><b>•</b>
-              <span>🏷️ SELL</span><b>•</b>
-              <span>🤝 MEET</span><b>✦</b>
-            </span>
-          </marquee>
+          <div className="mingle-tagline-track">
+            {[0, 1].map((copy) => (
+              <span className="mingle-tagline-group" key={copy} aria-hidden={copy === 1}>
+                <span>● CONNECT</span><b>•</b>
+                <span>🛒 BUY</span><b>•</b>
+                <span>🏷️ SELL</span><b>•</b>
+                <span>🤝 MEET</span><b>✦</b>
+              </span>
+            ))}
+          </div>
         </div>
 
         <button
