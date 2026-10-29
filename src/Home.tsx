@@ -1,6 +1,6 @@
 import PostSocial from "./PostSocial";
 import PromotionRequest from "./PromotionRequest";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export type Item = {
   id?: string;
@@ -32,6 +32,33 @@ export default function Home({
   unreadMessages = 0,
   onDeleteItem,
 }: HomeProps) {
+  const taglineTrackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const track = taglineTrackRef.current;
+    if (!track) return;
+
+    let position = 0;
+    let previousTime = 0;
+    let frameId = 0;
+    const speed = 45; // pixels per second, moving left-to-right
+
+    const animate = (time: number) => {
+      if (previousTime) {
+        const elapsed = Math.min((time - previousTime) / 1000, 0.05);
+        const halfWidth = track.scrollWidth / 2;
+        position -= speed * elapsed;
+        if (halfWidth > 0 && position <= -halfWidth) position += halfWidth;
+        track.style.transform = `translate3d(${position}px, 0, 0)`;
+      }
+      previousTime = time;
+      frameId = window.requestAnimationFrame(animate);
+    };
+
+    frameId = window.requestAnimationFrame(animate);
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
+
   const [searchText, setSearchText] = useState("");
   const [selectedCategory, setSelectedCategory] =
     useState("All categories");
@@ -105,18 +132,12 @@ export default function Home({
           .mingle-tagline-track {
             display: flex;
             width: max-content;
-            animation: mingle-tagline-left-to-right 8s linear infinite !important;
-            animation-play-state: running !important;
-            transform: translate3d(-50%, 0, 0);
+            transform: translate3d(0, 0, 0);
             will-change: transform;
           }
           .mingle-tagline-group {
             display: inline-flex;
             flex: 0 0 auto;
-          }
-          @keyframes mingle-tagline-left-to-right {
-            0% { transform: translate3d(-50%, 0, 0); }
-            100% { transform: translate3d(0, 0, 0); }
           }
           .mingle-tagline-group {
             display: inline-flex;
@@ -135,7 +156,7 @@ export default function Home({
           .mingle-tagline-group b { color: #94a3b8; }
         `}</style>
         <div className="mingle-tagline-window" aria-label="Connect, Buy, Sell, Meet">
-          <div className="mingle-tagline-track">
+          <div className="mingle-tagline-track" ref={taglineTrackRef}>
             {[0, 1].map((copy) => (
               <span className="mingle-tagline-group" key={copy} aria-hidden={copy === 1}>
                 <span>● CONNECT</span><b>•</b>
