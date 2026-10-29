@@ -105,8 +105,10 @@ export default function Home({
           .mingle-tagline-track {
             display: flex;
             width: max-content;
-            animation: mingle-tagline-right 16s linear infinite;
+            animation: mingle-tagline-right 12s linear infinite !important;
+            -webkit-animation: mingle-tagline-right 12s linear infinite !important;
             will-change: transform;
+            transform: translate3d(-50%, 0, 0);
           }
           .mingle-tagline-group {
             display: flex;
@@ -125,11 +127,12 @@ export default function Home({
           .mingle-tagline-group span:nth-child(4) { color: #7b2cbf; }
           .mingle-tagline-group b { color: #94a3b8; }
           @keyframes mingle-tagline-right {
-            from { transform: translateX(-50%); }
-            to { transform: translateX(0); }
+            0% { transform: translate3d(-50%, 0, 0); }
+            100% { transform: translate3d(0, 0, 0); }
           }
-          @media (prefers-reduced-motion: reduce) {
-            .mingle-tagline-track { animation: none; }
+          @-webkit-keyframes mingle-tagline-right {
+            0% { -webkit-transform: translate3d(-50%, 0, 0); }
+            100% { -webkit-transform: translate3d(0, 0, 0); }
           }
         `}</style>
         <div className="mingle-tagline-window" aria-label="Connect, Buy, Sell, Meet">
