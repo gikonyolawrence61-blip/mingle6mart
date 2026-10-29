@@ -249,3 +249,37 @@ code {
     filter: none;
   }
 }
+
+
+/* Continuous left-to-right MingleMart tagline ticker */
+.mingle-brand__tagline-window {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  margin-top: 10px;
+  padding: 8px 0;
+}
+.mingle-brand__tagline-track {
+  display: flex;
+  width: max-content;
+  animation: mingle-tagline-scroll 12s linear infinite !important;
+  animation-play-state: running !important;
+  will-change: transform;
+}
+.mingle-brand__tagline--moving {
+  flex: 0 0 auto;
+  opacity: 1 !important;
+  animation: none !important;
+  transform: none;
+  white-space: nowrap;
+  margin: 0;
+  padding-right: 28px;
+}
+.mingle-brand__tagline--moving b {
+  color: #f59e0b;
+  padding-left: 8px;
+}
+@keyframes mingle-tagline-scroll {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
