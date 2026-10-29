@@ -102,18 +102,13 @@ export default function Home({
             border-radius: 12px;
             background: linear-gradient(90deg, #e8f5e9, #e3f2fd, #fff3e0, #f3e5f5);
           }
-          .mingle-tagline-track {
-            display: flex;
-            width: max-content;
-            animation: mingle-tagline-right 12s linear infinite !important;
-            -webkit-animation: mingle-tagline-right 12s linear infinite !important;
-            will-change: transform;
-            transform: translate3d(-50%, 0, 0);
+          .mingle-tagline-marquee {
+            display: block;
+            width: 100%;
           }
           .mingle-tagline-group {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            flex-shrink: 0;
             white-space: nowrap;
             gap: 22px;
             padding-right: 22px;
@@ -126,26 +121,16 @@ export default function Home({
           .mingle-tagline-group span:nth-child(3) { color: #e77800; }
           .mingle-tagline-group span:nth-child(4) { color: #7b2cbf; }
           .mingle-tagline-group b { color: #94a3b8; }
-          @keyframes mingle-tagline-right {
-            0% { transform: translate3d(-50%, 0, 0); }
-            100% { transform: translate3d(0, 0, 0); }
-          }
-          @-webkit-keyframes mingle-tagline-right {
-            0% { -webkit-transform: translate3d(-50%, 0, 0); }
-            100% { -webkit-transform: translate3d(0, 0, 0); }
-          }
         `}</style>
         <div className="mingle-tagline-window" aria-label="Connect, Buy, Sell, Meet">
-          <div className="mingle-tagline-track">
-            {[0, 1].map((copy) => (
-              <div className="mingle-tagline-group" key={copy} aria-hidden={copy === 1}>
-                <span>● CONNECT</span><b>•</b>
-                <span>🛒 BUY</span><b>•</b>
-                <span>🏷️ SELL</span><b>•</b>
-                <span>🤝 MEET</span><b>✦</b>
-              </div>
-            ))}
-          </div>
+          <marquee className="mingle-tagline-marquee" direction="right" behavior="scroll" scrollAmount="5">
+            <span className="mingle-tagline-group">
+              <span>● CONNECT</span><b>•</b>
+              <span>🛒 BUY</span><b>•</b>
+              <span>🏷️ SELL</span><b>•</b>
+              <span>🤝 MEET</span><b>✦</b>
+            </span>
+          </marquee>
         </div>
 
         <button
