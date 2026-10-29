@@ -93,7 +93,57 @@ export default function Home({
       >
         <h1 style={{ color: "#1565c0" }}>MingleMart</h1>
 
-        <p>Connect • Buy • Sell • Meet</p>
+        <style>{`
+          .mingle-tagline-window {
+            width: 100%;
+            overflow: hidden;
+            margin: 8px 0 18px;
+            padding: 10px 0;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #e8f5e9, #e3f2fd, #fff3e0, #f3e5f5);
+          }
+          .mingle-tagline-track {
+            display: flex;
+            width: max-content;
+            animation: mingle-tagline-right 16s linear infinite;
+            will-change: transform;
+          }
+          .mingle-tagline-group {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            white-space: nowrap;
+            gap: 22px;
+            padding-right: 22px;
+            font-size: clamp(16px, 3.5vw, 21px);
+            font-weight: 900;
+            letter-spacing: .5px;
+          }
+          .mingle-tagline-group span:nth-child(1) { color: #16803d; }
+          .mingle-tagline-group span:nth-child(2) { color: #1565c0; }
+          .mingle-tagline-group span:nth-child(3) { color: #e77800; }
+          .mingle-tagline-group span:nth-child(4) { color: #7b2cbf; }
+          .mingle-tagline-group b { color: #94a3b8; }
+          @keyframes mingle-tagline-right {
+            from { transform: translateX(-50%); }
+            to { transform: translateX(0); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .mingle-tagline-track { animation: none; }
+          }
+        `}</style>
+        <div className="mingle-tagline-window" aria-label="Connect, Buy, Sell, Meet">
+          <div className="mingle-tagline-track">
+            {[0, 1].map((copy) => (
+              <div className="mingle-tagline-group" key={copy} aria-hidden={copy === 1}>
+                <span>● CONNECT</span><b>•</b>
+                <span>🛒 BUY</span><b>•</b>
+                <span>🏷️ SELL</span><b>•</b>
+                <span>🤝 MEET</span><b>✦</b>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <button
           onClick={onOpenSellerInbox}
