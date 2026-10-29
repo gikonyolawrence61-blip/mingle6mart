@@ -266,8 +266,8 @@ export default function Home({
           </h1>
           <div className="mingle-brand__tagline-window" aria-label="Connect, Buy, Sell, Meet">
             <div className="mingle-brand__tagline-track">
-              <p className="mingle-brand__tagline mingle-brand__tagline--moving">CONNECT <span>•</span> BUY <span>•</span> SELL <span>•</span> MEET <b>✦</b>&nbsp;&nbsp;&nbsp;</p>
-              <p className="mingle-brand__tagline mingle-brand__tagline--moving" aria-hidden="true">CONNECT <span>•</span> BUY <span>•</span> SELL <span>•</span> MEET <b>✦</b>&nbsp;&nbsp;&nbsp;</p>
+              <p className="mingle-brand__tagline mingle-brand__tagline--moving"><strong className="tagline-connect">CONNECT</strong> <i>•</i> <strong className="tagline-buy">BUY</strong> <i>•</i> <strong className="tagline-sell">SELL</strong> <i>•</i> <strong className="tagline-meet">MEET</strong> <b>✦</b>&nbsp;&nbsp;&nbsp;</p>
+              <p className="mingle-brand__tagline mingle-brand__tagline--moving" aria-hidden="true"><strong className="tagline-connect">CONNECT</strong> <i>•</i> <strong className="tagline-buy">BUY</strong> <i>•</i> <strong className="tagline-sell">SELL</strong> <i>•</i> <strong className="tagline-meet">MEET</strong> <b>✦</b>&nbsp;&nbsp;&nbsp;</p>
             </div>
           </div>
         </header>
