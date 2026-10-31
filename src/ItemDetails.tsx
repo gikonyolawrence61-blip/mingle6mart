@@ -8,6 +8,7 @@ type ItemDetailsProps = {
   item: Item;
   onBack: () => void;
   onContactSeller: () => void;
+  onUpdateListingStatus: (item: Item, status: "available" | "reserved" | "sold" | "archived") => Promise<void>;
 };
 
 type ListingReview = {
@@ -32,7 +33,8 @@ function reviewDate(value: ListingReview["createdAt"]): string {
     : "Recently";
 }
 
-export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetailsProps) {
+export default function ItemDetails({ item, onBack, onContactSeller, onUpdateListingStatus }: ItemDetailsProps) {
+  const [displayedListingStatus, setDisplayedListingStatus] = useState(String(item.listingStatus ?? "available"));
   const [reviews, setReviews] = useState<ListingReview[]>([]);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
@@ -104,6 +106,10 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
   const currentUser = auth.currentUser?.emailVerified ? auth.currentUser : null;
   const currentReview = reviews.find((review) => review.reviewerId === currentUser?.uid);
   const isSeller = Boolean(currentUser?.uid && item.sellerId && currentUser.uid === item.sellerId);
+
+  useEffect(() => {
+    setDisplayedListingStatus(String(item.listingStatus ?? "available"));
+  }, [item.id, item.listingStatus]);
 
   useEffect(() => {
     if (!item.id) {
@@ -236,8 +242,8 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
         )}
 
         <h1>{item.title}</h1>
-        <p style={{ display: "inline-block", padding: "5px 9px", borderRadius: "7px", background: item.listingStatus === "sold" ? "#fee2e2" : item.listingStatus === "reserved" ? "#fef3c7" : item.listingStatus === "expired" || item.listingStatus === "archived" ? "#e2e8f0" : "#dcfce7", color: item.listingStatus === "sold" ? "#991b1b" : item.listingStatus === "reserved" ? "#92400e" : item.listingStatus === "expired" || item.listingStatus === "archived" ? "#334155" : "#166534", fontWeight: 800, fontSize: "12px" }}>
-          {String(item.listingStatus ?? "available").toUpperCase()}
+        <p style={{ display: "inline-block", padding: "5px 9px", borderRadius: "7px", background: displayedListingStatus === "sold" ? "#fee2e2" : displayedListingStatus === "reserved" ? "#fef3c7" : displayedListingStatus === "expired" || displayedListingStatus === "archived" ? "#e2e8f0" : "#dcfce7", color: displayedListingStatus === "sold" ? "#991b1b" : displayedListingStatus === "reserved" ? "#92400e" : displayedListingStatus === "expired" || displayedListingStatus === "archived" ? "#334155" : "#166534", fontWeight: 800, fontSize: "12px" }}>
+          {displayedListingStatus.toUpperCase()}
         </p>
         <h2 style={{ color: "#1565c0" }}>KSh {item.price}</h2>
         <p><strong>Category:</strong> {item.category}</p>
@@ -248,6 +254,19 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
         </div>
         <p><strong>Description:</strong></p>
         <p>{item.description || "No description provided."}</p>
+
+        {isSeller && (
+          <section style={{ marginTop: "18px", padding: "15px", border: "1px solid #bfdbfe", borderRadius: "12px", background: "#eff6ff" }}>
+            <h2 style={{ margin: "0 0 10px", fontSize: "18px", color: "#1e3a8a" }}>Manage listing status</h2>
+            <p style={{ margin: "0 0 12px", color: "#475569", fontSize: "13px" }}>Current status: <strong>{displayedListingStatus.toUpperCase()}</strong></p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "9px" }}>
+              <button type="button" onClick={async () => { await onUpdateListingStatus(item, "available"); setDisplayedListingStatus("available"); }} style={{ padding: "12px 8px", border: "1px solid #86efac", borderRadius: "8px", background: "#dcfce7", color: "#166534", fontWeight: 700, cursor: "pointer" }}>✓ Available / Renew</button>
+              <button type="button" onClick={async () => { await onUpdateListingStatus(item, "reserved"); setDisplayedListingStatus("reserved"); }} style={{ padding: "12px 8px", border: "1px solid #fcd34d", borderRadius: "8px", background: "#fef3c7", color: "#92400e", fontWeight: 700, cursor: "pointer" }}>⏳ Reserved</button>
+              <button type="button" onClick={async () => { await onUpdateListingStatus(item, "sold"); setDisplayedListingStatus("sold"); }} style={{ padding: "12px 8px", border: "1px solid #fca5a5", borderRadius: "8px", background: "#fee2e2", color: "#991b1b", fontWeight: 700, cursor: "pointer" }}>✓ Sold</button>
+              <button type="button" onClick={async () => { await onUpdateListingStatus(item, "archived"); setDisplayedListingStatus("archived"); }} style={{ padding: "12px 8px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#e2e8f0", color: "#334155", fontWeight: 700, cursor: "pointer" }}>Archive</button>
+            </div>
+          </section>
+        )}
 
         <div style={{ marginTop: "22px", padding: "16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "12px" }}>
           <h2 style={{ marginTop: 0, marginBottom: "8px" }}>⭐ Ratings &amp; Reviews</h2>
@@ -295,7 +314,7 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
           </div>
         </div>
 
-        {item.listingStatus === "sold" ? (
+        {displayedListingStatus === "sold" ? (
           <p role="status" style={{ marginTop: "20px", padding: "14px", borderRadius: "10px", background: "#fee2e2", color: "#991b1b", fontWeight: 700, textAlign: "center" }}>This item has been marked as SOLD. New enquiries are closed.</p>
         ) : (
           <button onClick={onContactSeller} style={{ width: "100%", padding: "16px", marginTop: "20px", background: "#1565c0", color: "white", border: "none", borderRadius: "10px", fontSize: "18px", fontWeight: "bold", cursor: "pointer" }}>
