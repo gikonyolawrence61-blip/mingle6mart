@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { collection, onSnapshot, query, updateDoc, doc } from "firebase/firestore";
+import { collection, onSnapshot, query, updateDoc, doc, where } from "firebase/firestore";
 import { db } from "./firebase";
 
 type ListingAlert = {
@@ -29,11 +29,10 @@ export default function ListingAlerts({ userId }: { userId: string }) {
 
   useEffect(() => {
     if (!userId) { setAlerts([]); return; }
-    const alertsQuery = query(collection(db, "notifications"));
+    const alertsQuery = query(collection(db, "notifications"), where("sellerId", "==", userId));
     return onSnapshot(alertsQuery, (snapshot) => {
       const ownAlerts = snapshot.docs
         .map((entry) => ({ id: entry.id, ...entry.data() } as ListingAlert))
-        .filter((entry) => entry.sellerId === userId)
         .sort((a, b) => timestampMillis(b.createdAt) - timestampMillis(a.createdAt))
         .slice(0, 20);
       setAlerts(ownAlerts);
