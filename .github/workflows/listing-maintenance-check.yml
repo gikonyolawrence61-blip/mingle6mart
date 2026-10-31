@@ -1,0 +1,30 @@
+name: Check MingleMart listing maintenance
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [feature/listing-status-expiry]
+
+jobs:
+  build_web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+  build_functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install and build scheduled functions
+        working-directory: functions
+        run: npm install && npm run build
