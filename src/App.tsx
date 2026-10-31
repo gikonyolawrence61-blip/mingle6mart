@@ -115,7 +115,11 @@ export default function App() {
           "@type": "Offer",
           price: String(product!.price).replace(/[^0-9.]/g, ""),
           priceCurrency: "KES",
-          availability: "https://schema.org/InStock",
+          availability: product!.listingStatus === "sold"
+            ? "https://schema.org/OutOfStock"
+            : product!.listingStatus === "reserved"
+              ? "https://schema.org/LimitedAvailability"
+              : "https://schema.org/InStock",
           url: pageUrl,
         },
         areaServed: { "@type": "Country", name: "Kenya" }
