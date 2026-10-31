@@ -236,6 +236,9 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
         )}
 
         <h1>{item.title}</h1>
+        <p style={{ display: "inline-block", padding: "5px 9px", borderRadius: "7px", background: item.listingStatus === "sold" ? "#fee2e2" : item.listingStatus === "reserved" ? "#fef3c7" : item.listingStatus === "expired" || item.listingStatus === "archived" ? "#e2e8f0" : "#dcfce7", color: item.listingStatus === "sold" ? "#991b1b" : item.listingStatus === "reserved" ? "#92400e" : item.listingStatus === "expired" || item.listingStatus === "archived" ? "#334155" : "#166534", fontWeight: 800, fontSize: "12px" }}>
+          {String(item.listingStatus ?? "available").toUpperCase()}
+        </p>
         <h2 style={{ color: "#1565c0" }}>KSh {item.price}</h2>
         <p><strong>Category:</strong> {item.category}</p>
         <p><strong>📍 Location:</strong> {item.location}</p>
@@ -292,9 +295,13 @@ export default function ItemDetails({ item, onBack, onContactSeller }: ItemDetai
           </div>
         </div>
 
-        <button onClick={onContactSeller} style={{ width: "100%", padding: "16px", marginTop: "20px", background: "#1565c0", color: "white", border: "none", borderRadius: "10px", fontSize: "18px", fontWeight: "bold", cursor: "pointer" }}>
-          💬 Contact Seller
-        </button>
+        {item.listingStatus === "sold" ? (
+          <p role="status" style={{ marginTop: "20px", padding: "14px", borderRadius: "10px", background: "#fee2e2", color: "#991b1b", fontWeight: 700, textAlign: "center" }}>This item has been marked as SOLD. New enquiries are closed.</p>
+        ) : (
+          <button onClick={onContactSeller} style={{ width: "100%", padding: "16px", marginTop: "20px", background: "#1565c0", color: "white", border: "none", borderRadius: "10px", fontSize: "18px", fontWeight: "bold", cursor: "pointer" }}>
+            💬 Contact Seller
+          </button>
+        )}
 
         {!isSeller && currentUser && (
           <div style={{ marginTop: "14px", padding: "14px", border: "1px solid #fecaca", borderRadius: "12px", background: "#fff7f7" }}>
