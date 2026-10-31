@@ -115,7 +115,11 @@ export default function App() {
           "@type": "Offer",
           price: String(product!.price).replace(/[^0-9.]/g, ""),
           priceCurrency: "KES",
-          availability: "https://schema.org/InStock",
+          availability: product!.listingStatus === "sold"
+            ? "https://schema.org/OutOfStock"
+            : product!.listingStatus === "reserved"
+              ? "https://schema.org/LimitedAvailability"
+              : "https://schema.org/InStock",
           url: pageUrl,
         },
         areaServed: { "@type": "Country", name: "Kenya" }
@@ -174,6 +178,8 @@ export default function App() {
             isFeatured: data.isFeatured === true,
             promotionStatus: String(data.promotionStatus ?? ""),
             featuredUntil: data.featuredUntil ?? null,
+            listingStatus: String(data.listingStatus ?? "available"),
+            lastConfirmedAt: data.lastConfirmedAt ?? data.createdAt ?? null,
           };
         });
 
@@ -305,6 +311,10 @@ export default function App() {
         image: newItem.image ?? "",
         sellerId: currentUser.uid,
         createdAt: serverTimestamp(),
+        listingStatus: "available",
+        lastConfirmedAt: serverTimestamp(),
+        reminder30SentAt: null,
+        reminder45SentAt: null,
       });
 
       // Firestore's live listener refreshes the listings.
@@ -531,6 +541,27 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
             onOpenSellerInbox={() => setStep("sellerInbox")}
             unreadMessages={unreadMessages}
             onDeleteItem={handleDeleteItem}
+            onUpdateListingStatus={async (item, status) => {
+              if (!auth.currentUser?.emailVerified || !item.id || item.sellerId !== auth.currentUser.uid) {
+                alert("Only the owner of this listing can update its status.");
+                return;
+              }
+              try {
+                const updates: Record<string, unknown> = {
+                  listingStatus: status,
+                  statusUpdatedAt: serverTimestamp(),
+                };
+                if (status === "available") {
+                  updates.lastConfirmedAt = serverTimestamp();
+                  updates.reminder30SentAt = null;
+                  updates.reminder45SentAt = null;
+                }
+                await updateDoc(doc(db, "items", item.id), updates);
+              } catch (error) {
+                console.error("LISTING STATUS UPDATE ERROR:", error);
+                alert("Could not update listing status. Please check Firestore permissions and try again.");
+              }
+            }}
             onOpenAdmin={() => setStep("adminPromotions")}
             onSignIn={(item) => {
               if (item?.id) sessionStorage.setItem("minglemart.pendingItemId", item.id);
