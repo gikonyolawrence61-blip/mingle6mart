@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import PostSocial from "./src/PostSocial";
 import PromotionRequest from "./src/PromotionRequest";
+import ListingAlerts from "./src/ListingAlerts";
 
 export type Item = {
   id?: string;
@@ -159,7 +160,13 @@ export default function Home({
     return !!item.isFeatured;
   };
 
-  const featuredItems = useMemo(() => items.filter(isCurrentlyFeatured), [items, currentTime]);
+  const featuredItems = useMemo(
+    () => items.filter((item) => {
+      const status = String(item.listingStatus ?? "available").toLowerCase();
+      return status !== "expired" && status !== "archived" && isCurrentlyFeatured(item);
+    }),
+    [items, currentTime]
+  );
   const [featuredIndex, setFeaturedIndex] = useState(0);
 
   // Rotate the featured showcase every four seconds. Reset safely when listings change.
@@ -278,6 +285,8 @@ export default function Home({
             </div>
           </div>
         </header>
+
+        {currentUserId && <ListingAlerts userId={currentUserId} />}
 
         {currentUserId && (
           <section aria-label="Welcome back" style={{ margin: "12px 0 16px", padding: "18px", borderRadius: "14px", background: "#ffffff", border: "2px solid #087f5b", boxShadow: "0 4px 14px rgba(0,0,0,0.12)", color: "#123b2a", position: "relative", zIndex: 1 }}>
