@@ -17,6 +17,8 @@ export type Item = {
   isFeatured?: boolean;
   promotionStatus?: string;
   featuredUntil?: unknown;
+  listingStatus?: "available" | "reserved" | "sold" | "expired" | "archived" | string;
+  lastConfirmedAt?: unknown;
 };
 
 
@@ -89,6 +91,7 @@ type HomeProps = {
   onOpenSellerInbox: () => void;
   unreadMessages: number;
   onDeleteItem: (item: Item) => void;
+  onUpdateListingStatus: (item: Item, status: "available" | "reserved" | "sold" | "archived") => void;
   userName: string;
   onSignOut: () => void;
   isAdmin: boolean;
@@ -106,6 +109,7 @@ export default function Home({
   onOpenSellerInbox,
   unreadMessages,
   onDeleteItem,
+  onUpdateListingStatus,
   userName,
   onSignOut,
   isAdmin,
@@ -199,6 +203,9 @@ export default function Home({
     const search = searchText.trim().toLowerCase();
 
     return items.filter((item) => {
+      const status = String(item.listingStatus ?? "available").toLowerCase();
+      // Hidden listings remain visible to their owner so they can renew or archive them.
+      if ((status === "expired" || status === "archived") && item.sellerId !== currentUserId) return false;
       const searchableText = currentUserId
         ? [item.title, item.category, item.location, item.description, item.price]
         : [item.title, item.category];
@@ -504,9 +511,16 @@ export default function Home({
                 />
               ) : null}
 
-              <h3 style={{ margin: "5px 0" }}>
-                {item.title}
-              </h3>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px" }}>
+                <h3 style={{ margin: "5px 0" }}>{item.title}</h3>
+                {(() => {
+                  const status = String(item.listingStatus ?? "available").toLowerCase();
+                  const label = status === "reserved" ? "RESERVED" : status === "sold" ? "SOLD" : status === "expired" ? "EXPIRED" : status === "archived" ? "ARCHIVED" : "AVAILABLE";
+                  const background = status === "sold" ? "#fee2e2" : status === "reserved" ? "#fef3c7" : status === "expired" || status === "archived" ? "#e2e8f0" : "#dcfce7";
+                  const color = status === "sold" ? "#991b1b" : status === "reserved" ? "#92400e" : status === "expired" || status === "archived" ? "#334155" : "#166534";
+                  return <span style={{ flexShrink: 0, padding: "4px 7px", borderRadius: "6px", background, color, fontSize: "10px", fontWeight: 800 }}>{label}</span>;
+                })()}
+              </div>
 
               <p
                 style={{
@@ -609,6 +623,20 @@ export default function Home({
               {/* SELLER PROMOTION REQUEST */}
               {currentUserId !== "" && item.sellerId === currentUserId && (
                 <PromotionRequest itemId={item.id} itemTitle={item.title} />
+              )}
+
+              {/* SELLER LISTING STATUS CONTROLS */}
+              {currentUserId !== "" && item.sellerId === currentUserId && (
+                <div onClick={(event) => event.stopPropagation()} style={{ marginTop: "8px", padding: "10px", border: "1px solid #dbe3ee", borderRadius: "9px", background: "#f8fafc" }}>
+                  <strong style={{ display: "block", fontSize: "13px", marginBottom: "8px" }}>Manage listing status</strong>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "6px" }}>
+                    <button type="button" onClick={() => onUpdateListingStatus(item, "available")} style={{ padding: "9px 5px", border: "1px solid #86efac", borderRadius: "7px", background: "#dcfce7", color: "#166534", fontWeight: 700 }}>✓ Available / Renew</button>
+                    <button type="button" onClick={() => onUpdateListingStatus(item, "reserved")} style={{ padding: "9px 5px", border: "1px solid #fcd34d", borderRadius: "7px", background: "#fef3c7", color: "#92400e", fontWeight: 700 }}>⏳ Reserved</button>
+                    <button type="button" onClick={() => onUpdateListingStatus(item, "sold")} style={{ padding: "9px 5px", border: "1px solid #fca5a5", borderRadius: "7px", background: "#fee2e2", color: "#991b1b", fontWeight: 700 }}>✓ Sold</button>
+                    <button type="button" onClick={() => onUpdateListingStatus(item, "archived")} style={{ padding: "9px 5px", border: "1px solid #cbd5e1", borderRadius: "7px", background: "#e2e8f0", color: "#334155", fontWeight: 700 }}>Archive</button>
+                  </div>
+                  {(item.listingStatus === "expired" || item.listingStatus === "archived") && <p style={{ margin: "8px 0 0", color: "#475569", fontSize: "12px" }}>This listing is hidden from shoppers. Choose Available / Renew to publish it again.</p>}
+                </div>
               )}
 
               {/* SELLER-OWNED LISTING DELETION */}
