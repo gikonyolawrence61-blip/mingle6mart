@@ -54,18 +54,6 @@ export const manageListingExpiry = onSchedule(
       const sellerId = String(item.sellerId);
       const title = String(item.title ?? "Your listing");
 
-      if (ageDays >= 30 && !item.reminder30SentAt) {
-        await createReminder(itemDoc.id, sellerId, title, "day30", "Is this item still available? Confirm availability to keep your listing up to date.");
-        await itemDoc.ref.update({ reminder30SentAt: Timestamp.now() });
-        remindersSent++;
-      }
-
-      if (ageDays >= 45 && !item.reminder45SentAt) {
-        await createReminder(itemDoc.id, sellerId, title, "day45", "Your listing is 45 days old. Please confirm availability or mark it Reserved or Sold.");
-        await itemDoc.ref.update({ reminder45SentAt: Timestamp.now() });
-        remindersSent++;
-      }
-
       if (ageDays >= 60) {
         await itemDoc.ref.update({
           listingStatus: "expired",
@@ -74,6 +62,17 @@ export const manageListingExpiry = onSchedule(
         });
         await createReminder(itemDoc.id, sellerId, title, "expired", "Your listing has been hidden because availability was not confirmed within 60 days. Choose Available / Renew to publish it again.");
         listingsExpired++;
+        continue;
+      }
+
+      if (ageDays >= 45 && !item.reminder45SentAt) {
+        await createReminder(itemDoc.id, sellerId, title, "day45", "Your listing is 45 days old. Please confirm availability or mark it Reserved or Sold.");
+        await itemDoc.ref.update({ reminder45SentAt: Timestamp.now() });
+        remindersSent++;
+      } else if (ageDays >= 30 && !item.reminder30SentAt) {
+        await createReminder(itemDoc.id, sellerId, title, "day30", "Is this item still available? Confirm availability to keep your listing up to date.");
+        await itemDoc.ref.update({ reminder30SentAt: Timestamp.now() });
+        remindersSent++;
       }
     }
 
