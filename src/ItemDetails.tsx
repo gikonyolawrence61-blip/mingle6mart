@@ -34,7 +34,9 @@ function reviewDate(value: ListingReview["createdAt"]): string {
 }
 
 export default function ItemDetails({ item, onBack, onContactSeller, onUpdateListingStatus }: ItemDetailsProps) {
-  const [displayedListingStatus, setDisplayedListingStatus] = useState(String(item.listingStatus ?? "available"));\n  const [savingListingStatus, setSavingListingStatus] = useState(false);\n  const [listingStatusMessage, setListingStatusMessage] = useState("");
+  const [displayedListingStatus, setDisplayedListingStatus] = useState(String(item.listingStatus ?? "available"));
+  const [savingListingStatus, setSavingListingStatus] = useState(false);
+  const [listingStatusMessage, setListingStatusMessage] = useState("");
   const [reviews, setReviews] = useState<ListingReview[]>([]);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
