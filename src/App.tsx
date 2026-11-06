@@ -68,6 +68,14 @@ export default function App() {
   useEffect(() => {
     const baseUrl = "https://minglemart-eb6da.web.app/";
     const product = step === "itemDetails" && selectedItem?.id ? selectedItem : null;
+    const productPathMatch = window.location.pathname.match(/^\\/item\\/([^/]+)\\/?$/);
+    const requestedProductId = productPathMatch ? decodeURIComponent(productPathMatch[1]) : null;
+
+    // A shared product URL can arrive before Firestore has resolved the listing.
+    // Keep the product-specific canonical and metadata from the prerendered HTML
+    // during that loading window; never overwrite them with the homepage URL.
+    if (requestedProductId && (!product || String(product.id) !== requestedProductId)) return;
+
     const productIsOpen = Boolean(product);
     const title = productIsOpen
       ? `${product!.title} for sale in Kenya | MingleMart`
