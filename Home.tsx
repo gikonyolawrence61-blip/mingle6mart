@@ -92,7 +92,7 @@ type HomeProps = {
   onOpenSellerInbox: () => void;
   unreadMessages: number;
   onDeleteItem: (item: Item) => void;
-  onUpdateListingStatus: (item: Item, status: "available" | "reserved" | "sold" | "archived") => void;
+  onUpdateListingStatus: (item: Item, status: "available" | "reserved" | "sold" | "archived") => Promise<boolean>;
   userName: string;
   onSignOut: () => void;
   isAdmin: boolean;
