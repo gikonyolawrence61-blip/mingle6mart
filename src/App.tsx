@@ -68,8 +68,10 @@ export default function App() {
   useEffect(() => {
     const baseUrl = "https://minglemart-eb6da.web.app/";
     const product = step === "itemDetails" && selectedItem?.id ? selectedItem : null;
-    const productPathMatch = window.location.pathname.match(/^\\/item\\/([^/]+)\\/?$/);
-    const requestedProductId = productPathMatch ? decodeURIComponent(productPathMatch[1]) : null;
+    const pathSegments = window.location.pathname.split("/").filter(Boolean);
+    const requestedProductId = pathSegments.length === 2 && pathSegments[0] === "item"
+      ? decodeURIComponent(pathSegments[1])
+      : null;
 
     // A shared product URL can arrive before Firestore has resolved the listing.
     // Keep the product-specific canonical and metadata from the prerendered HTML
