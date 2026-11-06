@@ -589,7 +589,7 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
       )}
 
       {/* ITEM DETAILS */}
-      {step === "itemDetails" && selectedItem && auth.currentUser?.emailVerified && (
+      {step === "itemDetails" && selectedItem && (
         <ItemDetails
           item={selectedItem}
           onBack={handleBack}
