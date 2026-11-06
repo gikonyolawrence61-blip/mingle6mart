@@ -39,7 +39,7 @@ if (products.length) {
       .replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " ")
       .split(" ").filter(Boolean).join(" ").slice(0, 300);
 
-    let html = baseHtml.replace(/<title>[^<]*<\\/title>/i, `<title>${escapeHtml(title)}</title>`);
+    let html = baseHtml.replace(new RegExp("<title>[^<]*</title>", "i"), `<title>${escapeHtml(title)}</title>`);
     html = setMeta(html, "name", "description", description);
     html = setMeta(html, "property", "og:title", title);
     html = setMeta(html, "property", "og:description", description);
