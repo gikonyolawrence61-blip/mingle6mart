@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  schedule:
+    # Refresh the product sitemap and redeploy daily (05:15 Kenya time).
+    - cron: '15 2 * * *'
   workflow_dispatch:
 
 jobs:
