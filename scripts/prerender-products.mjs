@@ -92,9 +92,12 @@ if (products.length) {
     const jsonLd = JSON.stringify(schema).replace(/</g, "\\u003c");
     html = html.replace("</head>", `  <script type="application/ld+json">${jsonLd}</script>\n  </head>`);
 
-    const outputDirectory = path.join("dist", "item", product.id);
-    await mkdir(outputDirectory, { recursive: true });
-    await writeFile(path.join(outputDirectory, "index.html"), html, "utf8");
+    // Firebase Hosting serves clean URLs from matching .html files.
+    // The public listing URL is /item/<id> (without a trailing slash), so
+    // write the prerendered document at the exact clean-URL target.
+    const outputPath = path.join("dist", "item", `${product.id}.html`);
+    await mkdir(path.dirname(outputPath), { recursive: true });
+    await writeFile(outputPath, html, "utf8");
   }
   console.log(`Generated ${products.length} pre-rendered product pages.`);
 }
