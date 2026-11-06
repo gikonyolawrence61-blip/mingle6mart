@@ -2,6 +2,9 @@ import { writeFile } from "node:fs/promises";
 
 const baseUrl = "https://minglemart-eb6da.web.app/";
 const projectId = "minglemart-eb6da";
+// Firebase web API key (public client configuration) is required by the
+// unauthenticated Firestore REST endpoint used during the static SEO build.
+const apiKey = "AIzaSyA0NvHmjGmvWdM5O576HHE9_3_we7JaxGs";
 const urls = new Map([[baseUrl, new Date().toISOString().slice(0, 10)]]);
 const products = [];
 let pageToken = "";
@@ -19,7 +22,7 @@ function escapeXml(value) {
 
 try {
   do {
-    const query = new URLSearchParams({ pageSize: "1000" });
+    const query = new URLSearchParams({ pageSize: "1000", key: apiKey });
     if (pageToken) query.set("pageToken", pageToken);
     const endpoint = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/items?${query}`;
     const response = await fetch(endpoint);
@@ -59,7 +62,12 @@ try {
 
   console.log(`Sitemap: found ${products.length} public product listings.`);
 } catch (error) {
-  console.warn("Sitemap warning: could not fetch public Firestore listings; publishing homepage only.", error.message);
+  console.error("SEO build failed: could not fetch public Firestore listings.", error);
+  throw error;
+}
+
+if (products.length === 0) {
+  throw new Error("SEO build failed: Firestore returned zero public product listings; refusing to deploy a homepage-only sitemap.");
 }
 
 const entries = [...urls.entries()].map(([loc, lastmod]) =>
