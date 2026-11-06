@@ -75,7 +75,7 @@ export default function App() {
       ? `${product!.title} for KSh ${product!.price}. ${product!.category} in ${product!.location}. ${product!.description}`.replace(/\s+/g, " ").slice(0, 300)
       : "Discover affordable new and second-hand phones, electronics, furniture, household items, fashion and more on MingleMart Kenya. Buy and sell products and connect with buyers and sellers across Kenya.";
     const pageUrl = productIsOpen
-      ? `${baseUrl}?item=${encodeURIComponent(String(product!.id ?? ""))}`
+      ? `${baseUrl}item/${encodeURIComponent(String(product!.id ?? ""))}`
       : baseUrl;
 
     document.title = title;
@@ -416,9 +416,12 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
     if (step !== "home" || itemsLoading) return;
 
     const url = new URL(window.location.href);
-    const sharedItemId = url.searchParams.get("item");
+    const pathMatch = url.pathname.match(/^\/item\/([^/]+)\/?$/);
+    let pathItemId = "";
+    try { pathItemId = pathMatch ? decodeURIComponent(pathMatch[1]) : ""; } catch { pathItemId = ""; }
+    const legacyItemId = url.searchParams.get("item");
     const pendingItemId = sessionStorage.getItem("minglemart.pendingItemId");
-    const targetItemId = sharedItemId || pendingItemId;
+    const targetItemId = pathItemId || legacyItemId || pendingItemId;
     if (!targetItemId) return;
 
     const targetItem = items.find((item) => item.id === targetItemId);
@@ -435,9 +438,7 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
     // Let anyone open product details; login is still required for interactions.
     setSelectedItem(item);
     if (item.id) {
-      const url = new URL(window.location.href);
-      url.searchParams.set("item", item.id);
-      window.history.pushState({}, "", url.toString());
+      window.history.pushState({}, "", `/item/${encodeURIComponent(item.id)}`);
     }
     setStep("itemDetails");
   };
@@ -445,9 +446,7 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
   // RETURN HOME
   const handleBack = () => {
     setItemsError("");
-    const url = new URL(window.location.href);
-    url.searchParams.delete("item");
-    window.history.replaceState({}, "", url.toString());
+    window.history.replaceState({}, "", "/");
     setStep("home");
   };
 
