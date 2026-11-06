@@ -2,7 +2,6 @@ import { writeFile } from "node:fs/promises";
 
 const baseUrl = "https://minglemart-eb6da.web.app/";
 const projectId = "minglemart-eb6da";
-const apiKey = "AIzaSyA0NvHmjGmvWdM5O576HHE9_3_we7JaxGs";
 const urls = new Map([[baseUrl, new Date().toISOString().slice(0, 10)]]);
 let pageToken = "";
 
@@ -17,7 +16,9 @@ function escapeXml(value) {
 
 try {
   do {
-    const query = new URLSearchParams({ pageSize: "1000", key: apiKey });
+    // Public Firestore reads are authorized by Firestore Security Rules.
+    // Do not attach the browser API key: it may be restricted to browser referrers.
+    const query = new URLSearchParams({ pageSize: "1000" });
     if (pageToken) query.set("pageToken", pageToken);
     const endpoint = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/items?${query}`;
     const response = await fetch(endpoint);
@@ -27,7 +28,7 @@ try {
     for (const document of payload.documents ?? []) {
       const id = document.name?.split("/").pop();
       const fields = document.fields ?? {};
-      // Only publish complete, active-looking listings with a stable document ID.
+      // Only publish complete listings with a stable document ID.
       if (!id || !fieldValue(fields.title) || !fieldValue(fields.category)) continue;
       const productUrl = `${baseUrl}?item=${encodeURIComponent(id)}`;
       const rawUpdated = fields.updatedAt?.timestampValue ?? fields.createdAt?.timestampValue;
