@@ -47,6 +47,28 @@ if (products.length) {
     html = setMeta(html, "property", "og:type", "product");
     html = setCanonical(html, product.url);
 
+    // Put meaningful product content in the initial HTML response. Google and
+    // social crawlers must not receive an empty React root for product URLs.
+    const imageMarkup = product.image
+      ? `<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" style="display:block;max-width:100%;max-height:420px;object-fit:contain;margin:16px 0" />`
+      : "";
+    const fallbackContent = `<main id="seo-product-content" style="max-width:900px;margin:24px auto;padding:20px;font-family:Arial,sans-serif;color:#17202a">
+      <p><a href="/">← Back to MingleMart Kenya</a></p>
+      <h1>${escapeHtml(product.title)}</h1>
+      <p><strong>KSh ${escapeHtml(product.price)}</strong></p>
+      <p>Category: ${escapeHtml(product.category)}</p>
+      <p>Location: ${escapeHtml(product.location || "Kenya")}</p>
+      <p>Availability: ${escapeHtml(product.listingStatus)}</p>
+      ${imageMarkup}
+      <h2>Product description</h2>
+      <p>${escapeHtml(product.description || "Contact the seller for more details.")}</p>
+      <p>View this listing and discover more items on MingleMart Kenya.</p>
+    </main>`;
+    if (!html.includes('<div id="root"></div>')) {
+      throw new Error(`Could not find the React root in the generated HTML for product ${product.id}`);
+    }
+    html = html.replace('<div id="root"></div>', `<div id="root">${fallbackContent}</div>`);
+
     const schema = {
       "@context": "https://schema.org",
       "@type": "Product",
