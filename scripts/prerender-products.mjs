@@ -18,7 +18,7 @@ function setMeta(html, attribute, key, content) {
 
 function setCanonical(html, url) {
   const replacement = `<link rel="canonical" href="${escapeHtml(url)}" />`;
-  const matcher = /<link\\b(?=[^>]*\\brel=["']canonical["'])[^>]*>/i;
+  const matcher = /<link[^>]*rel=["']canonical["'][^>]*>/i;
   return matcher.test(html) ? html.replace(matcher, replacement) : html.replace("</head>", `  ${replacement}\n  </head>`);
 }
 
@@ -33,9 +33,11 @@ if (products.length) {
   const baseHtml = await readFile(indexPath, "utf8");
   for (const product of products) {
     if (!/^[A-Za-z0-9_-]+$/.test(product.id)) continue;
+
     const title = `${product.title} for sale in ${product.location || "Kenya"} | MingleMart`;
     const description = `${product.title} for KSh ${product.price}. ${product.category} in ${product.location}. ${product.description}`
-      .replace(/\\s+/g, " ").slice(0, 300);
+      .replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " ")
+      .split(" ").filter(Boolean).join(" ").slice(0, 300);
 
     let html = baseHtml.replace(/<title>[^<]*<\\/title>/i, `<title>${escapeHtml(title)}</title>`);
     html = setMeta(html, "name", "description", description);
