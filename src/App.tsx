@@ -6,6 +6,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   onSnapshot,
   query,
   serverTimestamp,
@@ -410,8 +411,9 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
   }
 };
 
-  // Resume a product visit after sign-in or email verification. sessionStorage
-  // keeps the intended product while the visitor moves between auth screens.
+  // Resolve shared product URLs after the listings listener has settled.
+  // If the collection query does not contain this item, fetch the document directly
+  // so a valid /item/:id URL does not silently fall back to the homepage.
   useEffect(() => {
     if (step !== "home" || itemsLoading) return;
 
@@ -424,13 +426,58 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
     const targetItemId = pathItemId || legacyItemId || pendingItemId;
     if (!targetItemId) return;
 
-    const targetItem = items.find((item) => item.id === targetItemId);
-    if (!targetItem) return;
+    const openProduct = (product: Item) => {
+      setItemsError("");
+      setSelectedItem(product);
+      sessionStorage.removeItem("minglemart.pendingItemId");
+      setStep("itemDetails");
+    };
 
-    // Product details are public so shoppers and search engines can view shared listings.
-    setSelectedItem(targetItem);
-    sessionStorage.removeItem("minglemart.pendingItemId");
-    setStep("itemDetails");
+    const cachedItem = items.find((item) => item.id === targetItemId);
+    if (cachedItem) {
+      openProduct(cachedItem);
+      return;
+    }
+
+    let cancelled = false;
+    void (async () => {
+      try {
+        const productSnapshot = await getDoc(doc(db, "items", targetItemId));
+        if (cancelled) return;
+        if (!productSnapshot.exists()) {
+          setItemsError("This listing could not be found. It may have been removed or its link may be incorrect.");
+          return;
+        }
+
+        const data = productSnapshot.data();
+        const product: Item = {
+          id: productSnapshot.id,
+          sellerId: String(data.sellerId ?? ""),
+          title: String(data.title ?? ""),
+          category: String(data.category ?? ""),
+          price: String(data.price ?? ""),
+          location: String(data.location ?? ""),
+          description: String(data.description ?? ""),
+          image: String(data.image ?? ""),
+          totalViews: Math.max(0, Number(data.totalViews ?? 0)),
+          uniqueVisitors: Math.max(0, Number(data.uniqueVisitors ?? 0)),
+          createdAt: data.createdAt ?? null,
+          isFeatured: data.isFeatured === true,
+          promotionStatus: String(data.promotionStatus ?? ""),
+          featuredUntil: data.featuredUntil ?? null,
+          listingStatus: String(data.listingStatus ?? "available"),
+          lastConfirmedAt: data.lastConfirmedAt ?? data.createdAt ?? null,
+        };
+        openProduct(product);
+      } catch (error) {
+        console.error("Could not load shared product URL:", error);
+        if (!cancelled) {
+          setItemsError("This product could not load. Please check your connection and public Firestore read permissions.");
+        }
+      }
+    })();
+
+    return () => { cancelled = true; };
   }, [step, itemsLoading, items]);
 
   // OPEN PRODUCT DETAILS. Keep the requested item while the visitor signs in/registers.
