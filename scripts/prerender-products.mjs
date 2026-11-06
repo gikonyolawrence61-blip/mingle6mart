@@ -95,7 +95,7 @@ if (products.length) {
     // Firebase Hosting serves clean URLs from matching .html files.
     // The public listing URL is /item/<id> (without a trailing slash), so
     // write the prerendered document at the exact clean-URL target.
-    const outputPath = path.join("dist", "item", `${product.id}.html`);
+    const outputPath = path.join("dist", "item", product.id);
     await mkdir(path.dirname(outputPath), { recursive: true });
     await writeFile(outputPath, html, "utf8");
   }
