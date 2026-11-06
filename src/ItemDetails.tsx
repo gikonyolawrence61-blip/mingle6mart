@@ -8,7 +8,7 @@ type ItemDetailsProps = {
   item: Item;
   onBack: () => void;
   onContactSeller: () => void;
-  onUpdateListingStatus: (item: Item, status: "available" | "reserved" | "sold" | "archived") => Promise<void>;
+  onUpdateListingStatus: (item: Item, status: "available" | "reserved" | "sold" | "archived") => Promise<boolean>;
 };
 
 type ListingReview = {
@@ -35,6 +35,8 @@ function reviewDate(value: ListingReview["createdAt"]): string {
 
 export default function ItemDetails({ item, onBack, onContactSeller, onUpdateListingStatus }: ItemDetailsProps) {
   const [displayedListingStatus, setDisplayedListingStatus] = useState(String(item.listingStatus ?? "available"));
+  const [savingListingStatus, setSavingListingStatus] = useState(false);
+  const [listingStatusMessage, setListingStatusMessage] = useState("");
   const [reviews, setReviews] = useState<ListingReview[]>([]);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
@@ -197,6 +199,26 @@ export default function ItemDetails({ item, onBack, onContactSeller, onUpdateLis
     }
   };
 
+  const updateListingStatus = async (status: "available" | "reserved" | "sold" | "archived") => {
+    if (savingListingStatus) return;
+    setSavingListingStatus(true);
+    setListingStatusMessage("");
+    try {
+      const updated = await onUpdateListingStatus(item, status);
+      if (updated) {
+        setDisplayedListingStatus(status);
+        setListingStatusMessage("Listing status updated successfully.");
+      } else {
+        setListingStatusMessage("The listing status was not changed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Could not update listing status:", error);
+      setListingStatusMessage("The listing status was not changed. Please try again.");
+    } finally {
+      setSavingListingStatus(false);
+    }
+  };
+
   const saveReview = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const user = auth.currentUser;
@@ -258,12 +280,12 @@ export default function ItemDetails({ item, onBack, onContactSeller, onUpdateLis
         {isSeller && (
           <section style={{ marginTop: "18px", padding: "15px", border: "1px solid #bfdbfe", borderRadius: "12px", background: "#eff6ff" }}>
             <h2 style={{ margin: "0 0 10px", fontSize: "18px", color: "#1e3a8a" }}>Manage listing status</h2>
-            <p style={{ margin: "0 0 12px", color: "#475569", fontSize: "13px" }}>Current status: <strong>{displayedListingStatus.toUpperCase()}</strong></p>
+            <p style={{ margin: "0 0 12px", color: "#475569", fontSize: "13px" }}>Current status: <strong>{displayedListingStatus.toUpperCase()}</strong></p>\n            {listingStatusMessage && <p role="status" style={{ margin: "0 0 12px", color: listingStatusMessage.includes("successfully") ? "#166534" : "#b91c1c", fontSize: "13px" }}>{savingListingStatus ? "Saving..." : listingStatusMessage}</p>}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "9px" }}>
-              <button type="button" onClick={async () => { await onUpdateListingStatus(item, "available"); setDisplayedListingStatus("available"); }} style={{ padding: "12px 8px", border: "1px solid #86efac", borderRadius: "8px", background: "#dcfce7", color: "#166534", fontWeight: 700, cursor: "pointer" }}>✓ Available / Renew</button>
-              <button type="button" onClick={async () => { await onUpdateListingStatus(item, "reserved"); setDisplayedListingStatus("reserved"); }} style={{ padding: "12px 8px", border: "1px solid #fcd34d", borderRadius: "8px", background: "#fef3c7", color: "#92400e", fontWeight: 700, cursor: "pointer" }}>⏳ Reserved</button>
-              <button type="button" onClick={async () => { await onUpdateListingStatus(item, "sold"); setDisplayedListingStatus("sold"); }} style={{ padding: "12px 8px", border: "1px solid #fca5a5", borderRadius: "8px", background: "#fee2e2", color: "#991b1b", fontWeight: 700, cursor: "pointer" }}>✓ Sold</button>
-              <button type="button" onClick={async () => { await onUpdateListingStatus(item, "archived"); setDisplayedListingStatus("archived"); }} style={{ padding: "12px 8px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#e2e8f0", color: "#334155", fontWeight: 700, cursor: "pointer" }}>Archive</button>
+              <button type="button" disabled={savingListingStatus} onClick={() => void updateListingStatus("available")} style={{ padding: "12px 8px", border: "1px solid #86efac", borderRadius: "8px", background: "#dcfce7", color: "#166534", fontWeight: 700, cursor: savingListingStatus ? "wait" : "pointer" }}>✓ Available / Renew</button>
+              <button type="button" disabled={savingListingStatus} onClick={() => void updateListingStatus("reserved")} style={{ padding: "12px 8px", border: "1px solid #fcd34d", borderRadius: "8px", background: "#fef3c7", color: "#92400e", fontWeight: 700, cursor: savingListingStatus ? "wait" : "pointer" }}>⏳ Reserved</button>
+              <button type="button" disabled={savingListingStatus} onClick={() => void updateListingStatus("sold")} style={{ padding: "12px 8px", border: "1px solid #fca5a5", borderRadius: "8px", background: "#fee2e2", color: "#991b1b", fontWeight: 700, cursor: savingListingStatus ? "wait" : "pointer" }}>✓ Sold</button>
+              <button type="button" disabled={savingListingStatus} onClick={() => void updateListingStatus("archived")} style={{ padding: "12px 8px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#e2e8f0", color: "#334155", fontWeight: 700, cursor: savingListingStatus ? "wait" : "pointer" }}>Archive</button>
             </div>
           </section>
         )}

@@ -464,6 +464,35 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
     }
   };
 
+  const handleUpdateListingStatus = async (
+    item: Item,
+    status: "available" | "reserved" | "sold" | "archived"
+  ): Promise<boolean> => {
+    const user = auth.currentUser;
+    if (!user?.emailVerified || !item.id || item.sellerId !== user.uid) {
+      alert("Only the owner of this listing can update its status.");
+      return false;
+    }
+
+    try {
+      const updates: Record<string, unknown> = {
+        listingStatus: status,
+        statusUpdatedAt: serverTimestamp(),
+      };
+      if (status === "available") {
+        updates.lastConfirmedAt = serverTimestamp();
+        updates.reminder30SentAt = null;
+        updates.reminder45SentAt = null;
+      }
+      await updateDoc(doc(db, "items", item.id), updates);
+      return true;
+    } catch (error) {
+      console.error("LISTING STATUS UPDATE ERROR:", error);
+      alert("Could not update listing status. Please check Firestore permissions and try again.");
+      return false;
+    }
+  };
+
   return (
     <div>
       <PWAInstall />
@@ -541,27 +570,7 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
             onOpenSellerInbox={() => setStep("sellerInbox")}
             unreadMessages={unreadMessages}
             onDeleteItem={handleDeleteItem}
-            onUpdateListingStatus={async (item, status) => {
-              if (!auth.currentUser?.emailVerified || !item.id || item.sellerId !== auth.currentUser.uid) {
-                alert("Only the owner of this listing can update its status.");
-                return;
-              }
-              try {
-                const updates: Record<string, unknown> = {
-                  listingStatus: status,
-                  statusUpdatedAt: serverTimestamp(),
-                };
-                if (status === "available") {
-                  updates.lastConfirmedAt = serverTimestamp();
-                  updates.reminder30SentAt = null;
-                  updates.reminder45SentAt = null;
-                }
-                await updateDoc(doc(db, "items", item.id), updates);
-              } catch (error) {
-                console.error("LISTING STATUS UPDATE ERROR:", error);
-                alert("Could not update listing status. Please check Firestore permissions and try again.");
-              }
-            }}
+            onUpdateListingStatus={handleUpdateListingStatus}
             onOpenAdmin={() => setStep("adminPromotions")}
             onSignIn={(item) => {
               if (item?.id) sessionStorage.setItem("minglemart.pendingItemId", item.id);
@@ -586,28 +595,7 @@ if (!isAdmin && (!item.sellerId || item.sellerId !== auth.currentUser?.uid)) {
           item={selectedItem}
           onBack={handleBack}
           onContactSeller={handleChat}
-          onUpdateListingStatus={async (item, status) => {
-            if (!auth.currentUser?.emailVerified || !item.id || item.sellerId !== auth.currentUser.uid) {
-              alert("Only the owner of this listing can update its status.");
-              return;
-            }
-            try {
-              const updates: Record<string, unknown> = {
-                listingStatus: status,
-                statusUpdatedAt: serverTimestamp(),
-              };
-              if (status === "available") {
-                updates.lastConfirmedAt = serverTimestamp();
-                updates.reminder30SentAt = null;
-                updates.reminder45SentAt = null;
-              }
-              await updateDoc(doc(db, "items", item.id), updates);
-            } catch (error) {
-              console.error("LISTING STATUS UPDATE ERROR:", error);
-              alert("Could not update listing status. Please check Firestore permissions and try again.");
-              throw error;
-            }
-          }}
+          onUpdateListingStatus={handleUpdateListingStatus}
         />
       )}
 
