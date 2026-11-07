@@ -78,6 +78,10 @@ export default function App() {
     // during that loading window; never overwrite them with the homepage URL.
     if (requestedProductId && (!product || String(product.id) !== requestedProductId)) return;
 
+    // Remove the static crawlable fallback only after the live product details
+    // have loaded successfully into the React app.
+    if (product) document.getElementById("seo-product-content")?.remove();
+
     const productIsOpen = Boolean(product);
     const title = productIsOpen
       ? `${product!.title} for sale in Kenya | MingleMart`
