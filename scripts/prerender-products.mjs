@@ -67,7 +67,9 @@ if (products.length) {
     if (!html.includes('<div id="root"></div>')) {
       throw new Error(`Could not find the React root in the generated HTML for product ${product.id}`);
     }
-    html = html.replace('<div id="root"></div>', `<div id="root">${fallbackContent}</div>`);
+    // Keep crawlable product content OUTSIDE the React root. createRoot() clears
+    // existing root children on startup, which otherwise erases this fallback.
+    html = html.replace('<div id="root"></div>', `${fallbackContent}\n<div id="root"></div>`);
 
     const schema = {
       "@context": "https://schema.org",
