@@ -5,7 +5,11 @@ const projectId = "minglemart-eb6da";
 // Firebase web API key (public client configuration) is required by the
 // unauthenticated Firestore REST endpoint used during the static SEO build.
 const apiKey = "AIzaSyA0NvHmjGmvWdM5O576HHE9_3_we7JaxGs";
-const urls = new Map([[baseUrl, new Date().toISOString().slice(0, 10)]]);
+const today = new Date().toISOString().slice(0, 10);
+const urls = new Map([
+  [baseUrl, today],
+  [`${baseUrl}contact`, today],
+]);
 const products = [];
 let pageToken = "";
 
